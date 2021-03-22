@@ -49,7 +49,9 @@ palabras_reservadas = {
     'Sum'             : 'SUM',
     'MAIN'            : 'MAIN',
     'PARA'            :  'PARA',
-    'FIN'             : 'FIN'
+    'FIN'             : 'FIN',
+    'TRUE'            : 'TRUE',
+    'FALSE'           : 'FALSE'
     }
 
 
