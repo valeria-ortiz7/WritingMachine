@@ -75,7 +75,7 @@ tokens = ['PARENTESISIZQ',
 
 
 # Expresiones regulares de los tokens
-t_ignore = '  \t*' # Esto indica que ignorará tabs, espacios en blanco
+t_ignore = '  \t' # Esto indica que ignorará tabs, espacios en blanco
 t_ignore_COMENTARIO = r'--.*' # Ignorará los comentarios (empiezan con --)
 t_PLUS    = r'\+'
 t_RESTA = r'-'
