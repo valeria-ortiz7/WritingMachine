@@ -133,8 +133,6 @@ def t_error(token):
 
 # Maneja el fin del archivo (EOF o End-Of-File)
 def t_eof(t):
-   # Se imprime EOF al final del archivo solo para comprobar que recorrió todo el input
-   print("\nEOF")
    return None
 
 
