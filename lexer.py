@@ -11,78 +11,82 @@ Para correr el programa:
    2. Luego igual en CMD a la ubicación del archivo (cd Documentos o Descargas o c://Users/nombre...) y
    correr "python lexer.py"
 
+TODO: Solucionar la detección de multiplicaciones
+
 """
 
 # Lista de palabras reservadas, se hace aparte de los tokens para no generar una expresión regular para cada una
 palabras_reservadas = {
-    'Def'             : 'DEF',
-    'Put'             : 'PUT',
-    'Add'             : 'ADD',
-    'ContinueUp'      : 'CONTINUEUP',
-    'ContinueDown'    : 'CONTINUEDOWN',
+    'Def'                       : 'DEF',
+    'Put'                       : 'PUT',
+    'Add'                     : 'ADD',
+    'ContinueUp'       : 'CONTINUEUP',
+    'ContinueDown'  : 'CONTINUEDOWN',
     'ContinueRight:'  : 'CONTINUERIGHT',
-    'ContinueLeft'    : 'CONTINUELEFT',
-    'Pos'             : 'POS',
-    'PosX'            : 'POSX',
-    'PosY'            : 'POSY',
-    'UseColor'        : 'USECOLOR',
-    'Down'            : 'DOWN',
-    'Up'              : 'UP',
-    'Begin'           : 'BEGIN',
-    'Speed'           : 'SPEED',
-    'Run'             : 'RUN',
-    'Repeat'          : 'REPEAT',
-    'If'              : 'IF',
-    'IfElse'          : 'IFELSE',
-    'Until'           : 'UNTIL',
-    'While'           : 'WHILE',
-    'Equal'           : 'EQUAL',
-    'And'             : 'AND',
-    'Or'              : 'OR',
-    'Greater'         : 'GREATER',
-    'Smaller'         : 'SMALLER',
-    'Substr'          : 'SUBSTR',
-    'Random'          : 'RANDOM',
-    'Mult'            : 'MULT',
-    'Power'           : 'POWER',
-    'Div'             : 'DIV',
-    'Sum'             : 'SUM',
-    'MAIN'            : 'MAIN',
-    'PARA'            :  'PARA',
-    'FIN'             : 'FIN',
-    'TRUE'            : 'TRUE',
-    'FALSE'           : 'FALSE'
+    'ContinueLeft'      : 'CONTINUELEFT',
+    'Pos'                       : 'POS',
+    'PosX'                     : 'POSX',
+    'PosY'                     : 'POSY',
+    'UseColor'             : 'USECOLOR',
+    'Down'                   : 'DOWN',
+    'Up'                        : 'UP',
+    'Begin'                   : 'BEGIN',
+    'Speed'                 : 'SPEED',
+    'Run'                      : 'RUN',
+    'Repeat'                : 'REPEAT',
+    'If'                           : 'IF',
+    'IfElse'                    : 'IFELSE',
+    'Until'                     : 'UNTIL',
+    'While'                   : 'WHILE',
+    'Equal'                   : 'EQUAL',
+    'And'                     : 'AND',
+    'Or'                        : 'OR',
+    'Greater'               : 'GREATER',
+    'Smaller'               : 'SMALLER',
+    'Substr'                 : 'SUBSTR',
+    'Random'             : 'RANDOM',
+    'Mult'                    : 'MULT',
+    'Power'                 : 'POWER',
+    'Div'                       : 'DIV',
+    'Sum'                     : 'SUM',
+    'MAIN'                  : 'MAIN',
+    'PARA'                  :  'PARA',
+    'FIN'                      : 'FIN'
     }
 
 
 # Lista de tokens que identificará el programa
 # Se agrega la lista de palabras reservadas al final
 tokens = ['PARENTESISIZQ',
-          'PARENTESISDER',
-          'INT',
-          'PLUS',
-          'RESTA',
-          'DIVISION',
-          'MULTIPLICACION',
-          'MAYORQUE',
-          'MENORQUE',
-          'PYC',
-          'IGUAL',
-          'CORCHETEIZQ',
-          'CORCHETEDER',
-          'STRING',
-          'ID'] + list(palabras_reservadas.values())
+                  'PARENTESISDER',
+                  'INT',
+                  'PLUS',
+                  'RESTA',
+                  'DIVISION',
+                  'MULTIPLICACION',
+                   'POTENCIA',
+                  'MAYORQUE',
+                  'MENORQUE',
+                  'PYC',
+                  'IGUAL',
+                  'CORCHETEIZQ',
+                  'CORCHETEDER',
+                  'STRING',
+                  'ID',
+                  'TRUE',
+                  'FALSE'] + list(palabras_reservadas.values())
 
 
 # Expresiones regulares de los tokens
-t_ignore = '  \t' # Esto indica que ignorará tabs, espacios en blanco
+t_ignore = '  \t\n' # Esto indica que ignorará tabs, espacios en blanco
 t_ignore_COMENTARIO = r'--.*' # Ignorará los comentarios (empiezan con --)
 t_PLUS    = r'\+'
 t_RESTA = r'-'
 t_PARENTESISIZQ = r'\('
 t_PARENTESISDER = r'\)'
 t_DIVISION = r'/'
-t_MULTIPLICACION = r'\*'
+t_MULTIPLICACION = '\*'
+t_POTENCIA = r'\^'
 t_MAYORQUE = r'>'
 t_MENORQUE = r'<'
 t_PYC = r';'
@@ -105,6 +109,17 @@ def t_ID(token):
    # Regresa la variable
    return token
 
+# Define el token del valor booleano TRUE
+def t_TRUE(token):
+   r'(TRUE)'
+   token.value = True
+   return  token
+
+# Define el token del valor booleano FALSE
+def t_FALSE(token):
+   r'(FALSE)'
+   token.value = False
+   return  token
 
 # Regla de expresión regular para un número (int)
 def t_INT(token):
@@ -121,13 +136,14 @@ def t_INT(token):
 # Se define el token "newline" para que el lexer pueda saber actualizar el número de línea que está recorriendo (útil en el futuro para indicar errores)
 def t_newline(token):
    r'\n+'
-   token.lexer.lineno += len(token.value)
-
+   token.lexer.lineno += token.value.count("\n")
+   return token
+   
 
 # Regla para manejar los errores
 def t_error(token):
    # Si hay un caracter para el cual no existe un token (p.e: '?' o '!', imprime Caracter no permitido y el caracter al lado)
-   print("Caracter no permitido '%s'" % token.value[0])
+   print("Caracter no permitido '{0} en la linea {1}'".format(token.value[0], token.lineno))
    token.lexer.skip(1)
    
 
@@ -137,7 +153,7 @@ def t_eof(t):
 
 
 # Construir el lexer después de crear las reglas
-lex.lex()
+lexer = lex.lex()
 
 # Prueba para el lexer
    # Detecta e ignore comentarios - Check
@@ -145,18 +161,15 @@ lex.lex()
    # Detecta palabras reservadas - Check
    # Recibe _, & y @ como caracteres aceptados para un string - Check
    
-lex.input("""x_a = 3 * 4 - 5 * 6 + -2 ? ContinueUp
-
-Holaaa@& [] If () > < ; "While hola 23" 2
--- Hola 123
-23
-
+lexer.input("""x_a = 3 * 4 - 5 * 6 + -2 ? ContinueUp
 PARA
 FIN""")
 
+
+print("\n--------- Resultados del lexer: (Incluye errores que debe dar) ---------")
 #Mientras hayan tokens, los imprime en el respectivo par ordenado
 while True:
-   token = lex.token()
+   token = lexer.token()
 
    # Si se acaban los tokens del input, se acaba
    if not token:
@@ -165,3 +178,4 @@ while True:
    # Imprime la línea y, en forma de par ordenado, el tipo de token y qué fue lo que catalogó de esa manera
    print("En la linea " + str(token.lineno) + " se encontró el token: "
             + '(' + str(token.type) + ', ' + str(token.value) + ')')
+   
