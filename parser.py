@@ -100,9 +100,9 @@ def p_sentencia_cambio(p):
 
 # Add: Incrementa el valor de una variable
 def p_add(p):
-   ''' add : ADD CORCHETEIZQ ID CORCHETEDER
-           | ADD CORCHETEIZQ ID ID CORCHETEDER
-           | ADD CORCHETEIZQ ID INT CORCHETEDER
+   ''' add : ADD CORCHETEIZQ ID CORCHETEDER PYC
+           | ADD CORCHETEIZQ ID ID CORCHETEDER PYC
+           | ADD CORCHETEIZQ ID INT CORCHETEDER PYC
    '''
 
    # Revisa primero si el ID existe en el diccionario, en caso de que no, da el error
@@ -113,11 +113,11 @@ def p_add(p):
    else:
 
       # Si solo recibe Add[id]
-      if len(p) == 5:
+      if len(p) == 6:
          p[0] = variables[p[3]] = variables[p[3]] + 1
 
       # Si recibe Add[id var]
-      elif len(p) == 6:
+      elif len(p) == 7:
          if p[4] in variables:
             p[0] = variables[p[3]] = variables[p[3]] + variables[p[4]]
 
