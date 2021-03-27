@@ -13,9 +13,9 @@ Put i = 3*2;
 Put iA@ = 3 * 2;
 
 -- Prueba parser add
-Add [id23]
-Add [i_a 2]
-Add [i_a ixa@]
+Add [id23];
+Add [i_a 2];
+Add [i_a ixa@];
 
 -- Prueba parser continueX
 ContinueUp 2;
