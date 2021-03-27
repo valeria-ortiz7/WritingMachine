@@ -35,8 +35,7 @@ Para correr el programa:
 
 TODO:
 1. Generar los errores para cada error de sintaxis
-2. Ignorar el punto y coma que va al final de cada expresión para evitar errores
-3. Generar las reglas para todo
+2. Generar las reglas para todo a partir de las reglas de POS
 
 """
 
@@ -72,8 +71,8 @@ def p_sentencias(p):
 # Definición de  sentencia
 def p_sentencia_expr(p):
    ''' sentencia : expresion
-                           | add
-                           | continue
+                 | add
+                 | continue
    '''
    p[0] = p[1]
         
@@ -89,7 +88,7 @@ def p_sentencia_asignacion(p):
 # Le cambia el valor a una variable ya existente
 def p_sentencia_cambio(p):
    ''' sentencia : PUT ID IGUAL valor PYC
-                           | PUT ID IGUAL expresion PYC
+                 | PUT ID IGUAL expresion PYC
    '''
    # Si la variable ya existe, le cambia el valor
    if p[2] in variables:
@@ -102,8 +101,8 @@ def p_sentencia_cambio(p):
 # Add: Incrementa el valor de una variable
 def p_add(p):
    ''' add : ADD CORCHETEIZQ ID CORCHETEDER
-                 | ADD CORCHETEIZQ ID ID CORCHETEDER
-                 | ADD CORCHETEIZQ ID INT CORCHETEDER
+           | ADD CORCHETEIZQ ID ID CORCHETEDER
+           | ADD CORCHETEIZQ ID INT CORCHETEDER
    '''
 
    # Revisa primero si el ID existe en el diccionario, en caso de que no, da el error
@@ -132,7 +131,7 @@ def p_add(p):
 # Definición de valor
 def p_valor(p):
    ''' valor : INT
-                  | ID
+             | ID
    '''
    p[0] = p[1]
 
@@ -142,22 +141,23 @@ def p_valor(p):
 # Definición de Continue
 def p_continue(p):
    ''' continue : CONTINUEUP INT PYC
-                        | CONTINUEUP ID PYC
-                        | CONTINUEUP expresion PYC
-                        | CONTINUEDOWN INT PYC
-                        | CONTINUEDOWN ID PYC
-                        | CONTINUEDOWN expresion PYC
-                        | CONTINUERIGHT INT PYC
-                        | CONTINUERIGHT ID PYC
-                        | CONTINUERIGHT expresion PYC
-                        | CONTINUELEFT INT PYC
-                        | CONTINUELEFT ID PYC
-                        | CONTINUELEFT expresion PYC
+                | CONTINUEUP ID PYC
+                | CONTINUEUP expresion PYC
+                | CONTINUEDOWN INT PYC
+                | CONTINUEDOWN ID PYC
+                | CONTINUEDOWN expresion PYC
+                | CONTINUERIGHT INT PYC
+                | CONTINUERIGHT ID PYC
+                | CONTINUERIGHT expresion PYC
+                | CONTINUELEFT INT PYC
+                | CONTINUELEFT ID PYC
+                | CONTINUELEFT expresion PYC
    '''
-   
+   # Si lo que le sigue es un número o expresión
    if isinstance(p[2], int):
       p[0] = p[2]
-
+      
+   # Si le sigue un ID
    if not isinstance(p[2], int):
       if p[2] in variables:
          p[0] = variables[p[2]]
@@ -194,6 +194,7 @@ def p_expresion_op(p):
   elif p[2] == '/':
       p[0] = p[1] / p[3]
 
+  # Potencia
   elif p[2] == '^':
      p[0] = pow(p[1], p[3])
 
