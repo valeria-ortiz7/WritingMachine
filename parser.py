@@ -73,9 +73,11 @@ def p_sentencia_expr(p):
    ''' sentencia : expresion
                  | add
                  | continue
+                 | pos
+
    '''
    p[0] = p[1]
-        
+
 
 """ Asignaciones """
 
@@ -126,7 +128,7 @@ def p_add(p):
 
          else:
             print("ERROR: No se puede incrementar a {0} en el identificador indefinido {1} en la linea {2}\n".format(p[3], p[4], p.lineno(3)))
-            
+
 
 # Definición de valor
 def p_valor(p):
@@ -156,7 +158,7 @@ def p_continue(p):
    # Si lo que le sigue es un número o expresión
    if isinstance(p[2], int):
       p[0] = p[2]
-      
+
    # Si le sigue un ID
    if not isinstance(p[2], int):
       if p[2] in variables:
@@ -164,29 +166,64 @@ def p_continue(p):
 
       if p[2] not in variables:
          print("ERROR: No se puede mover n cantidades con el identificador indefinido {0}\n".format(p[2]))
-   
-   
+
+""" Pos """
+def p_pos(p):
+    ''' pos : POS CORCHETEIZQ expresion COMA expresion CORCHETEDER PYC
+            | POS CORCHETEIZQ valor COMA valor CORCHETEDER PYC
+            | POS CORCHETEIZQ valor COMA expresion CORCHETEDER PYC
+            | POS CORCHETEIZQ expresion COMA valor CORCHETEDER PYC
+            | POSX expresion PYC
+            | POSX valor PYC
+            | POSY expresion PYC
+            | POSY valor PYC
+    '''
+    if len(p) == 8:
+        if isinstance(p[3], int) and isinstance(p[5],int):
+            p[0] = p[3] , p[5]
+        else:
+            if (p[3] in variables and p[5] in variables) or (isinstance(p[3], int) and p[5] in variables) or (p[3] in variables and isinstance(p[5], int)):
+                if isinstance(p[3],int):
+                    p[0] = p[3] , variables[p[5]]
+                elif isinstance(p[5],int):
+                    p[0] = variables[p[3]] , p[5]
+                else:
+                    p[0] = variables[p[3]] , variables[p[5]]
+            elif (p[3] not in variables):
+                print("ERROR3: No se puede cambiar la posicion con el identificador indefinido  {0}\n".format(p[3]))
+            elif (p[5] not in variables):
+                print("ERROR5: No se puede cambiar la posicion con el identificador indefinido  {0}\n".format(p[5]))
+    if len(p) == 4:
+        if (isinstance(p[2], int)):
+            p[0] = p[2]
+        elif p[2] in variables:
+            p[0] = variables[p[2]]
+        elif p[2] not in variables:
+                print("ERROR: No se puede cambiar la posicion con el identificador indefinido  {0}\n".format(p[3]))
+
+
+
 
 """ Operaciones matemáticas básicas """
 
 # Definicion de operación matemática
 def p_expresion_op(p):
   '''expresion : expresion PLUS expresion
-                         | expresion RESTA expresion
-                         | expresion MULTIPLICACION expresion
-                         | expresion DIVISION expresion
-                         | expresion POTENCIA expresion
+               | expresion RESTA expresion
+               | expresion MULTIPLICACION expresion
+               | expresion DIVISION expresion
+               | expresion POTENCIA expresion
    '''
 
   # Suma
-  if p[2] == '+': 
+  if p[2] == '+':
       p[0] = p[1] + p[3]
-      
+
   # Resta
   elif p[2] == '-':
       p[0] = p[1] - p[3]
 
-  # Multiplicación    
+  # Multiplicación
   elif p[2] == '*':
       p[0] = p[1] * p[3]
 
@@ -197,6 +234,8 @@ def p_expresion_op(p):
   # Potencia
   elif p[2] == '^':
      p[0] = pow(p[1], p[3])
+
+
 
 
 # Número negativo
@@ -215,12 +254,44 @@ def p_expresion_num(p):
 def p_factor_expr(p):
    'expresion : PARENTESISIZQ expresion PARENTESISDER'
    p[0] = p[2]
-   
+
+""" CONDICIONES """
+
+def p_expresion_condicion(p):
+    '''expresion : condicion'''
+    p[0] = p[1]
+
+#Definicion de comparadores
+def p_condiciones(p):
+    '''condicion : expresion MAYORQUE expresion
+                 | expresion MENORQUE expresion
+                 | expresion IGUALES expresion
+    '''
+    # Mayor
+    if p[2] == '>':
+        if p[1] > p[3]:
+            p[0] = True
+        else:
+            p[0] = False
+
+    # Menor
+    elif p[2] == '<':
+        if p[1] < p[3]:
+            p[0] = True
+        else:
+            p[0] = False
+    # Iguales
+    elif p[2] == '==':
+        if p[1] == p[3]:
+            p[0] = True
+        else:
+            p[0] = False
 
 """ ERRORES """
 
 # Manejo de errores
 def p_error(p):
+   print(p)
    print("Error de sintaxis en el token:", p.type)
    parser.errok()
 
@@ -250,4 +321,11 @@ with open(archivo_programa, 'r') as archivo:
    pp.pprint(parser.parse(insumo))
 
 # Imprime el diccionario de variables creadas/modificadas durante el programa
+print("\nResultados del parser:") # Nueva linea solo para separar los resultados del parser del lexer
+print(yacc.parse("Def ass = 5; PosY ass ;"))
+print(yacc.parse("6-5>21"))
+print(yacc.parse("3+4+6-4"))
+print(yacc.parse("(1+2)+2"))
+print(yacc.parse("3 + (4 / 2)"))
+print(yacc.parse("-3"))
 print("\nDiccionario de variables almacenadas:\n", variables)

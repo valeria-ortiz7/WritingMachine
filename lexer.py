@@ -68,7 +68,9 @@ tokens = ['PARENTESISIZQ',
                   'MAYORQUE',
                   'MENORQUE',
                   'PYC',
+                  'COMA',
                   'IGUAL',
+                  'IGUALES',
                   'CORCHETEIZQ',
                   'CORCHETEDER',
                   'STRING',
@@ -80,6 +82,7 @@ tokens = ['PARENTESISIZQ',
 # Expresiones regulares de los tokens
 t_ignore = '  \t\n' # Esto indica que ignorará tabs, espacios en blanco
 t_ignore_COMENTARIO = r'--.*' # Ignorará los comentarios (empiezan con --)
+t_IGUALES = r'=='
 t_PLUS    = r'\+'
 t_RESTA = r'-'
 t_PARENTESISIZQ = r'\('
@@ -90,11 +93,11 @@ t_POTENCIA = r'\^'
 t_MAYORQUE = r'>'
 t_MENORQUE = r'<'
 t_PYC = r';'
+t_COMA = r','
 t_IGUAL = r'='
 t_CORCHETEIZQ = r'\['
 t_CORCHETEDER = r'\]'
 t_STRING = r'"[a-zA-Z0-9_ ]*"'
-
 """ REGLAS DEL LEXER """
 
 
@@ -163,6 +166,7 @@ lexer = lex.lex()
    
 lexer.input("""x_a = 3 * 4 - 5 * 6 + -2 ? ContinueUp
 PARA
+°
 FIN""")
 
 
