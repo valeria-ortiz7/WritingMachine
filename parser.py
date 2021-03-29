@@ -8,7 +8,7 @@ import pprint
 import sys
 
 # Regresa el número de argumentos en la línea de comandos
-numero_argumentos = len(sys.argv)
+"""numero_argumentos = len(sys.argv)
 
 # Según la cantidad de argumentos, corre el programa
 if numero_argumentos != 2:
@@ -18,7 +18,7 @@ if numero_argumentos != 2:
 # Si se reciben los dos parámetros, asigna el segundo como el archivo a leer
 else:
    archivo_programa = sys.argv[1]
-
+"""
 
 # Se importan los tokens creados en el otro archivo
 from lexer import tokens
@@ -42,6 +42,7 @@ TODO:
 # Lista de variables almacenadas. Guardará las variables creadas en el diccionario como {ID : valor}
 variables = {}
 
+variablesbool = {}
 # Lista de funciones almacenadas del programa
 funciones = {}
 
@@ -84,8 +85,12 @@ def p_sentencia_expr(p):
 # Definición de asignación
 def p_sentencia_asignacion(p):
    ''' sentencia : DEF ID IGUAL valor PYC
+                 | DEF ID IGUAL TRUE PYC
+                 | DEF ID IGUAL FALSE PYC
    '''
    p[0] = variables[p[2]] = p[4]
+   if p[4] == "True" or p[4] == "False":
+       variablesbool[p[2]] = p[4]
 
 # Le cambia el valor a una variable ya existente
 def p_sentencia_cambio(p):
@@ -168,6 +173,8 @@ def p_continue(p):
          print("ERROR: No se puede mover n cantidades con el identificador indefinido {0}\n".format(p[2]))
 
 """ Pos """
+
+# Definicion de Pos
 def p_pos(p):
     ''' pos : POS CORCHETEIZQ expresion COMA expresion CORCHETEDER PYC
             | POS CORCHETEIZQ valor COMA valor CORCHETEDER PYC
@@ -178,21 +185,36 @@ def p_pos(p):
             | POSY expresion PYC
             | POSY valor PYC
     '''
+    # Si es Pos[]
     if len(p) == 8:
         if isinstance(p[3], int) and isinstance(p[5],int):
             p[0] = p[3] , p[5]
         else:
             if (p[3] in variables and p[5] in variables) or (isinstance(p[3], int) and p[5] in variables) or (p[3] in variables and isinstance(p[5], int)):
+
                 if isinstance(p[3],int):
-                    p[0] = p[3] , variables[p[5]]
+                    if (isinstance(variables[p[5]],int)):
+                        p[0] = p[3] , variables[p[5]]
+                    else:
+                        print("ERROR: No se puede cambiar la posicion con el identificador booleano  {0}\n".format(p[5]))
                 elif isinstance(p[5],int):
-                    p[0] = variables[p[3]] , p[5]
-                else:
+                    if isinstance(variables[p[3]], int):
+                        p[0] = variables[p[3]] , p[5]
+                    else:
+                        print("ERROR: No se puede cambiar la posicion con el identificador booleano  {0}\n".format(p[3]))
+                elif isinstance(variables[p[3]],int) and isinstance(variables[p[5]],int):
                     p[0] = variables[p[3]] , variables[p[5]]
+                else:
+                    if not isinstance(variables[p[5]],int):
+                        print("ERROR: No se puede cambiar la posicion con el identificador booleano  {0}\n".format(p[5]))
+                    elif not isinstance(variables[p[3]],int):
+                        print("ERROR: No se puede cambiar la posicion con el identificador booleano  {0}\n".format(p[3]))
+
             elif (p[3] not in variables):
-                print("ERROR3: No se puede cambiar la posicion con el identificador indefinido  {0}\n".format(p[3]))
+                print("ERROR: No se puede cambiar la posicion con el identificador indefinido  {0}\n".format(p[3]))
             elif (p[5] not in variables):
-                print("ERROR5: No se puede cambiar la posicion con el identificador indefinido  {0}\n".format(p[5]))
+                print("ERROR: No se puede cambiar la posicion con el identificador indefinido  {0}\n".format(p[5]))
+    # Si es PosX/PosY
     if len(p) == 4:
         if (isinstance(p[2], int)):
             p[0] = p[2]
@@ -202,6 +224,109 @@ def p_pos(p):
                 print("ERROR: No se puede cambiar la posicion con el identificador indefinido  {0}\n".format(p[3]))
 
 
+""" Use Color"""
+
+def p_usecolor(p):
+    '''sentencia : USECOLOR valor PYC
+                 | USECOLOR expresion PYC
+    '''
+    if isinstance(p[2],int):
+        if 1<=p[2]<=3:
+            p[0] = p[2]
+        else:
+            print("ERROR: Los valores aceptados para UseColor son 1,2,3 ")
+
+    else:
+        if p[2] in variablesbool:
+            print("ERROR: No se puede cambiar el color con el identificador booleano  {0}\n".format(p[2]))
+        elif (p[2] in variables):
+            if 1 <= variables[p[2]] <= 3:
+                p[0] = variables[p[2]]
+            else:
+                print("ERROR: Los valores aceptados para UseColor son 1,2,3 ")
+        else:
+            print("ERROR: No se puede cambiar la posicion con el identificador indefinido  {0}\n".format(p[2]))
+
+
+""" Write """
+
+def p_write(p):
+    '''sentencia : DOWN PYC
+                 | UP PYC
+    '''
+    p[0] = p[1]
+
+""" Begin """
+
+def p_begin(p):
+    '''sentencia : BEGIN PYC
+    '''
+    p[0] = (1,1)
+
+""" Speed """
+
+def p_speed(p):
+    '''sentencia : SPEED expresion PYC
+                 | SPEED valor PYC
+    '''
+    if isinstance(p[2],int):
+        p[0] = p[2]
+    else:
+        if p[2] in variablesbool:
+            print("ERROR: No se puede cambiar la velocidad con el identificador booleano  {0}\n".format(p[2]))
+        elif p[2] in variables:
+            p[0] = variables[p[2]]
+        else:
+            print("ERROR: No se puede cambiar la velocidad con el identificador indefinido  {0}\n".format(p[2]))
+
+
+""" Run/Repeat"""
+
+def p_run(p):
+    '''sentencia : RUN CORCHETEIZQ sentencias CORCHETEDER PYC
+    '''
+    p[0] = p[3]
+
+def p_repeat(p):
+    '''sentencia : REPEAT valor CORCHETEIZQ sentencias CORCHETEDER PYC
+                 | REPEAT expresion CORCHETEIZQ sentencias CORCHETEDER PYC
+    '''
+    if isinstance(p[2],int):
+        p[0] = [p[2]] + p[4]
+    else:
+        if p[2] in variablesbool:
+            print("ERROR: No se puede recibir n como un identificador booleano  {0}\n".format(p[2]))
+        elif p[2] in variables:
+            p[0] = [variables[p[2]]] + p[4]
+        else:
+            print("ERROR: No se puede recibir n como un identificador indefinido  {0}\n".format(p[2]))
+
+""" If """
+
+def p_if(p):
+    ''' sentencia : IF condicion CORCHETEIZQ sentencias CORCHETEDER PYC
+    '''
+    if p[2] == True:
+        p[0] = p[4]
+
+def p_ifelse(p):
+    ''' sentencia : IFELSE condicion CORCHETEIZQ sentencias CORCHETEDER CORCHETEIZQ sentencias CORCHETEDER PYC
+    '''
+    if p[2] == True:
+        p[0] = p[4]
+    else:
+        p[0] = p[7]
+
+""" Iteracion """
+
+def p_until(p):
+    ''' sentencia : UNTIL CORCHETEIZQ sentencias CORCHETEDER CORCHETEIZQ condicion CORCHETEDER PYC
+    '''
+    cont = 1
+    print("Until")
+    while p[6] == True:
+        cont = cont + 1
+    p[0] = [cont] + p[3]
 
 
 """ Operaciones matemáticas básicas """
@@ -315,17 +440,18 @@ print("\n--------- Resultados del parser: (Incluye errores que debe dar) -------
 pp = pprint.PrettyPrinter(indent = 4)
 
 # Implementación para leer un archivo que será el insumo del parser
-with open(archivo_programa, 'r') as archivo:
+"""with open(archivo_programa, 'r') as archivo:
    insumo = archivo.read()
    # Imprime el resultado
    pp.pprint(parser.parse(insumo))
-
+"""
 # Imprime el diccionario de variables creadas/modificadas durante el programa
 print("\nResultados del parser:") # Nueva linea solo para separar los resultados del parser del lexer
-print(yacc.parse("Def ass = 5; PosY ass ;"))
-print(yacc.parse("6-5>21"))
+print(yacc.parse("Def sds = 3;"))
+print(yacc.parse(" Until [Add[sds];] [5<5]; "))
 print(yacc.parse("3+4+6-4"))
 print(yacc.parse("(1+2)+2"))
 print(yacc.parse("3 + (4 / 2)"))
 print(yacc.parse("-3"))
 print("\nDiccionario de variables almacenadas:\n", variables)
+print("\nDiccionario de variables almacenadas:\n", variablesbool)
