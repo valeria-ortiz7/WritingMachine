@@ -8,7 +8,7 @@ import pprint
 import sys
 
 # Regresa el número de argumentos en la línea de comandos
-"""numero_argumentos = len(sys.argv)
+numero_argumentos = len(sys.argv)
 
 # Según la cantidad de argumentos, corre el programa
 if numero_argumentos != 2:
@@ -18,7 +18,7 @@ if numero_argumentos != 2:
 # Si se reciben los dos parámetros, asigna el segundo como el archivo a leer
 else:
    archivo_programa = sys.argv[1]
-"""
+
 
 # Se importan los tokens creados en el otro archivo
 from lexer import tokens
@@ -75,6 +75,7 @@ def p_sentencia_expr(p):
                  | add
                  | continue
                  | pos
+                 | condicion
 
    '''
    p[0] = p[1]
@@ -326,6 +327,7 @@ def p_until(p):
     print("Until")
     while p[6] == True:
         cont = cont + 1
+        print(p[6])
     p[0] = [cont] + p[3]
 
 
@@ -382,35 +384,124 @@ def p_factor_expr(p):
 
 """ CONDICIONES """
 
-def p_expresion_condicion(p):
-    '''expresion : condicion'''
-    p[0] = p[1]
-
 #Definicion de comparadores
+
 def p_condiciones(p):
     '''condicion : expresion MAYORQUE expresion
                  | expresion MENORQUE expresion
                  | expresion IGUALES expresion
+                 | expresion MAYORQUE valor
+                 | expresion MENORQUE valor
+                 | expresion IGUALES valor
+                 | valor MAYORQUE valor
+                 | valor MENORQUE valor
+                 | valor IGUALES valor
+                 | valor MAYORQUE expresion
+                 | valor MENORQUE expresion
+                 | valor IGUALES expresion
     '''
+    print("xond")
     # Mayor
-    if p[2] == '>':
-        if p[1] > p[3]:
-            p[0] = True
-        else:
-            p[0] = False
 
-    # Menor
-    elif p[2] == '<':
-        if p[1] < p[3]:
-            p[0] = True
+    if isinstance(p[1],int) and isinstance(p[3],int):
+        if p[2] == '>':
+            if p[1] > p[3]:
+                p[0] = True
+            else:
+                p[0] = False
+        elif p[2] == '<':
+            if p[1] < p[3]:
+                p[0] = True
+            else:
+                p[0] = False
+        elif p[2] == '==':
+            if p[1] == p[3]:
+                p[0] = True
+            else:
+                p[0] = False
+    else:
+        if isinstance(p[1],int):
+            if p[3] in variablesbool:
+                print("ERROR: No se puede comparar el identificador booleano {0} ".format(p[3]) + "con un int")
+            elif p[3] in variables:
+                if p[2] == '>':
+                    if p[1] > variables[p[3]]:
+                        p[0] = True
+                    else:
+                        p[0] = False
+                elif p[2] == '<':
+                    if p[1] < variables[p[3]]:
+                        p[0] = True
+                    else:
+                        p[0] = False
+                elif p[2] == '==':
+                    if p[1] == variables[p[3]]:
+                        p[0] = True
+                    else:
+                        p[0] = False
+            else:
+                print("ERROR: No se puede comparar con el identificador indefinido {0}\n".format(p[3]))
+
+        elif isinstance(p[3],int):
+            if p[1] in variablesbool:
+                print("ERROR: No se puede comparar el identificador booleano {0} ".format(p[1]) + "con un int")
+            elif p[1] in variables:
+                if p[2] == '>':
+                    if variables[p[1]] > p[3]:
+                        p[0] = True
+                    else:
+                        p[0] = False
+                elif p[2] == '<':
+                    if variables[p[1]] < p[3]:
+                        p[0] = True
+                    else:
+                        p[0] = False
+                elif p[2] == '==':
+                    if variables[p[1]] == p[3]:
+                        p[0] = True
+                    else:
+                        p[0] = False
+            else:
+                print("ERROR: No se puede comparar con el identificador indefinido {0}\n".format(p[1]))
         else:
-            p[0] = False
+            if p[2] == '>' or p[2] == '<':
+                print("Error: las comparaciones de mayor o menor solo se pueden realizar con enteros")
+            else:
+                if p[1] in variablesbool:
+                    if p[3] in variablesbool:
+                        if variables[p[1]] == variables[p[3]]:
+                            p[0] = True
+                        else:
+                            p[0] = False
+                    elif p[3] == "True" or p[3] == "False":
+                        if variables[p[1]] == p[3]:
+                            p[0] = True
+                        else:
+                            p[0] = False
+                elif p[3] in variablesbool:
+                    if p[1] in variablesbool:
+                        if variables[p[1]] == variables[p[3]]:
+                            p[0] = True
+                        else:
+                            p[0] = False
+                    elif p[1] == "True" or p[1] == "False":
+                        if variables[p[3]] == p[1]:
+                            p[0] = True
+                        else:
+                            p[0] = False
+                elif (p[1] == "True" or p[1] == "False") and (p[3] == "True" or p[3] == "False"):
+                    if p[1] == p[3]:
+                        p[0] = True
+                    else:
+                        p[0] = False
+                else:
+                    print("Error: las comparaciones son validas solo para enteros o booleanos")
+
+
+
+
     # Iguales
-    elif p[2] == '==':
-        if p[1] == p[3]:
-            p[0] = True
-        else:
-            p[0] = False
+
 
 """ ERRORES """
 
@@ -440,15 +531,15 @@ print("\n--------- Resultados del parser: (Incluye errores que debe dar) -------
 pp = pprint.PrettyPrinter(indent = 4)
 
 # Implementación para leer un archivo que será el insumo del parser
-"""with open(archivo_programa, 'r') as archivo:
+with open(archivo_programa, 'r') as archivo:
    insumo = archivo.read()
    # Imprime el resultado
    pp.pprint(parser.parse(insumo))
-"""
+
 # Imprime el diccionario de variables creadas/modificadas durante el programa
 print("\nResultados del parser:") # Nueva linea solo para separar los resultados del parser del lexer
-print(yacc.parse("Def sds = 3;"))
-print(yacc.parse(" Until [Add[sds];] [5<5]; "))
+print(yacc.parse("Def sds = 1; Def ass = jkjk;"))
+print(yacc.parse(" Until [Add [sds];] [sds<3]; "))
 print(yacc.parse("3+4+6-4"))
 print(yacc.parse("(1+2)+2"))
 print(yacc.parse("3 + (4 / 2)"))
