@@ -1,5 +1,6 @@
 import ply.lex as lex
 from ply.lex import TOKEN
+import sys
 
 """
 Writing Machine
@@ -67,22 +68,23 @@ tokens = ['PARENTESISIZQ',
                    'POTENCIA',
                   'MAYORQUE',
                   'MENORQUE',
+                  'MENOROIGUAL',
+                  'MAYOROIGUAL',
                   'PYC',
-                  'COMA',
                   'IGUAL',
-                  'IGUALES',
                   'CORCHETEIZQ',
                   'CORCHETEDER',
                   'STRING',
+                  'COMA',
                   'ID',
                   'TRUE',
                   'FALSE'] + list(palabras_reservadas.values())
 
+num_comentarios = 0
 
 # Expresiones regulares de los tokens
 t_ignore = '  \t\n' # Esto indica que ignorará tabs, espacios en blanco
-t_ignore_COMENTARIO = r'--.*' # Ignorará los comentarios (empiezan con --)
-t_IGUALES = r'=='
+#t_ignore_COMENTARIO = r'--.+' # Ignorará los comentarios (empiezan con --)
 t_PLUS    = r'\+'
 t_RESTA = r'-'
 t_PARENTESISIZQ = r'\('
@@ -92,12 +94,15 @@ t_MULTIPLICACION = '\*'
 t_POTENCIA = r'\^'
 t_MAYORQUE = r'>'
 t_MENORQUE = r'<'
+t_MAYOROIGUAL = r'>='
+t_MENOROIGUAL = r'<='
 t_PYC = r';'
-t_COMA = r','
 t_IGUAL = r'='
+t_COMA = r','
 t_CORCHETEIZQ = r'\['
 t_CORCHETEDER = r'\]'
 t_STRING = r'"[a-zA-Z0-9_ ]*"'
+
 """ REGLAS DEL LEXER """
 
 
@@ -139,21 +144,24 @@ def t_INT(token):
 # Se define el token "newline" para que el lexer pueda saber actualizar el número de línea que está recorriendo (útil en el futuro para indicar errores)
 def t_newline(token):
    r'\n+'
-   token.lexer.lineno += token.value.count("\n")
+   token.lexer.lineno += len(token.value)
+
+def t_COMENTARIO(t):
+   r'--.+'
+   global num_comentarios
+   num_comentarios += 1
    return token
-   
 
 # Regla para manejar los errores
 def t_error(token):
    # Si hay un caracter para el cual no existe un token (p.e: '?' o '!', imprime Caracter no permitido y el caracter al lado)
-   print("Caracter no permitido '{0} en la linea {1}'".format(token.value[0], token.lineno))
+   print("Caracter '{0}' no permitido en la linea {1}'".format(token.value[0], token.lineno))
    token.lexer.skip(1)
    
 
 # Maneja el fin del archivo (EOF o End-Of-File)
 def t_eof(t):
-   return None
-
+      return None
 
 # Construir el lexer después de crear las reglas
 lexer = lex.lex()
@@ -163,18 +171,11 @@ lexer = lex.lex()
    # Diferencia entre ID y String - Check
    # Detecta palabras reservadas - Check
    # Recibe _, & y @ como caracteres aceptados para un string - Check
-   
-lexer.input("""x_a = 3 * 4 - 5 * 6 + -2 ? ContinueUp
-PARA
-°
-FIN""")
 
-
-print("\n--------- Resultados del lexer: (Incluye errores que debe dar) ---------")
 #Mientras hayan tokens, los imprime en el respectivo par ordenado
 while True:
    token = lexer.token()
-
+   
    # Si se acaban los tokens del input, se acaba
    if not token:
       break
