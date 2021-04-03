@@ -61,6 +61,7 @@ palabras_reservadas = {
 tokens = ['PARENTESISIZQ',
                   'PARENTESISDER',
                   'INT',
+                  'COMENTARIO',
                   'PLUS',
                   'RESTA',
                   'DIVISION',
@@ -80,10 +81,8 @@ tokens = ['PARENTESISIZQ',
                   'TRUE',
                   'FALSE'] + list(palabras_reservadas.values())
 
-num_comentarios = 0
-
 # Expresiones regulares de los tokens
-t_ignore = '  \t\n' # Esto indica que ignorará tabs, espacios en blanco
+t_ignore = '  \t' # Esto indica que ignorará tabs, espacios en blanco
 #t_ignore_COMENTARIO = r'--.+' # Ignorará los comentarios (empiezan con --)
 t_PLUS    = r'\+'
 t_RESTA = r'-'
@@ -146,16 +145,14 @@ def t_newline(token):
    r'\n+'
    token.lexer.lineno += len(token.value)
 
-def t_COMENTARIO(t):
-   r'--.+'
-   global num_comentarios
-   num_comentarios += 1
+def t_COMENTARIO(token):
+   r'--.*'
    return token
 
 # Regla para manejar los errores
 def t_error(token):
    # Si hay un caracter para el cual no existe un token (p.e: '?' o '!', imprime Caracter no permitido y el caracter al lado)
-   print("Caracter '{0}' no permitido en la linea {1}'".format(token.value[0], token.lineno))
+   print("Caracter '{0}' no permitido en la linea {1}".format(token.value[0], token.lineno))
    token.lexer.skip(1)
    
 
@@ -165,22 +162,4 @@ def t_eof(t):
 
 # Construir el lexer después de crear las reglas
 lexer = lex.lex()
-
-# Prueba para el lexer
-   # Detecta e ignore comentarios - Check
-   # Diferencia entre ID y String - Check
-   # Detecta palabras reservadas - Check
-   # Recibe _, & y @ como caracteres aceptados para un string - Check
-
-#Mientras hayan tokens, los imprime en el respectivo par ordenado
-while True:
-   token = lexer.token()
-   
-   # Si se acaban los tokens del input, se acaba
-   if not token:
-      break
-
-   # Imprime la línea y, en forma de par ordenado, el tipo de token y qué fue lo que catalogó de esa manera
-   print("En la linea " + str(token.lineno) + " se encontró el token: "
-            + '(' + str(token.type) + ', ' + str(token.value) + ')')
    
