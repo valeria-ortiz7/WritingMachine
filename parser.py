@@ -10,9 +10,6 @@ import sys
 # Generación de números aleatorios
 import random
 
-# Para generacion de errores
-numero_linea = 1
-
 # Regresa el número de argumentos en la línea de comandos
 numero_argumentos = len(sys.argv)
 
@@ -27,6 +24,7 @@ else:
 
 
 # Se importan los tokens creados en el otro archivo
+import lexer
 from lexer import tokens
 
 """
@@ -40,20 +38,32 @@ Para correr el programa:
    correr "python parser.py [nombre_archivo].txt" El archivo de lexer.py tiene que estar en la misma carpeta
 
 TODO:
-1. Generar los errores para cada error de sintaxis
-2. Ignorar el punto y coma que va al final de cada expresión para evitar errores
-3. Generar las reglas para todo
+1. Agregar los booleanos a lo que corresponda
+2. Plantear cómo se va a definir el main
+3. Detectar si no hay main
+4. Hacer que el main sea el que guarde en variables y los procedimientos en variables_locales
+5. Agregar Pos[], PosX, PosY, UseColor, Down, Up, Begin, Speed
+6. Modificar la regla de "ordenes" para que acepte todas las funciones del programa (until, pos, procedimientos, etc)
 
 """
 
 # Lista de variables almacenadas. Guardará las variables creadas en el diccionario como {ID : valor}
 variables = {}
 
+# Lista de variables locales almacenadas. Guardará las variables creadas en el diccionario como {ID : valor}
+variables_locales = {}
+
 # Lista de funciones almacenadas del programa
 funciones = {}
 
 # Lista de errores del programa
 lista_errores = []
+
+# Cantidad de comentarios
+comentarios = 0
+
+# Main
+main = 0
 
 # Precedencia para asignar a las operaciones
 precedence = (
@@ -86,6 +96,9 @@ def p_sentencia_expr(p):
                            | operacion
                            | condicion
                            | operadorlogico
+                           | comentario
+                           | funcionreservada
+                           | funcion
    '''
    p[0] = p[1]
         
@@ -93,44 +106,47 @@ def p_sentencia_expr(p):
 """ Asignaciones """
 
 # Definición de asignación
-def p_sentencia_asignacion(p):
+def p_asignacion_global(p):
    ''' sentencia : DEF ID IGUAL valor PYC
    '''
    p[0] = variables[p[2]] = p[4]
 
-# Le cambia el valor a una variable ya existente
+
+# PUT: Le cambia el valor a una variable ya existente
 def p_sentencia_cambio(p):
    ''' sentencia : PUT ID IGUAL valor PYC
                            | PUT ID IGUAL expresion PYC
    '''
    # Si la variable ya existe, le cambia el valor
    if p[2] in variables:
-      p[0] = variables[p[2]] = p[4]
+      variables[p[2]] = p[4]
+      p[0] = p[4]
 
    # Si no existe, da error de variable indefinida
    else:
-      print("ERROR: No se puede cambiar el valor del identificador '{0}' indefinido en la linea {1}\n".format(p[2], p.lineno(1)))
+      lista_errores.append("ERROR: No se puede cambiar el valor del identificador '{0}' indefinido en la linea {1}".format(p[2], p.lineno(2)))
+
 
 # Add: Incrementa el valor de una variable
 def p_add(p):
-   ''' add : ADD CORCHETEIZQ ID CORCHETEDER
-                 | ADD CORCHETEIZQ ID ID CORCHETEDER
-                 | ADD CORCHETEIZQ ID INT CORCHETEDER
+   ''' add : ADD CORCHETEIZQ ID CORCHETEDER PYC
+                 | ADD CORCHETEIZQ ID ID CORCHETEDER PYC
+                 | ADD CORCHETEIZQ ID INT CORCHETEDER PYC
    '''
 
    # Revisa primero si el ID existe en el diccionario, en caso de que no, da el error
    if p[3] not in variables:
-         print("ERROR: No se puede incrementar en 1 al identificador indefinido {0} en la linea {1}\n".format(p[3], p.lineno(1)))
+         lista_errores.append("ERROR: No se puede incrementar en 1 al identificador indefinido {0} en la linea {1}".format(p[3], p.lineno(3)))
 
    # Si sí existe
    else:
 
       # Si solo recibe Add[id]
-      if len(p) == 5:
+      if len(p) == 6:
          p[0] = variables[p[3]] = variables[p[3]] + 1
 
       # Si recibe Add[id var]
-      elif len(p) == 6:
+      elif len(p) == 7:
          if p[4] in variables:
             p[0] = variables[p[3]] = variables[p[3]] + variables[p[4]]
 
@@ -138,7 +154,7 @@ def p_add(p):
             p[0] = variables[p[3]] = variables[p[3]] + int(p[4])
 
          else:
-            print("ERROR: No se puede incrementar a {0} en el identificador indefinido {1} en la linea {2}\n".format(p[3], p[4], p.lineno(1)))
+            lista_errores.append("ERROR: No se puede incrementar a {0} en el identificador indefinido {1} en la linea {2}".format(p[3], p[4], p.lineno(4)))
             
 
 # Definición de valor
@@ -166,18 +182,16 @@ def p_continue(p):
                         | CONTINUELEFT ID PYC
                         | CONTINUELEFT expresion PYC
    '''
-   p.lineno(1)
    
    if isinstance(p[2], int):
-      p[0] = p[2]
+      p[0] = [p[1], p[2]]
 
    if not isinstance(p[2], int):
       if p[2] in variables:
-         p[0] = variables[p[2]]
+         p[0] = [p[1], variables[p[2]]]
 
       if p[2] not in variables:
-         print("ERROR: No se puede mover n cantidades con el identificador indefinido {0}\n".format(p[2]))
-   
+         lista_errores.append("ERROR: No se puede mover n cantidades con el identificador indefinido {0} en la linea".format(p[2], p.lineno(2)))
    
 
 """ Operaciones matemáticas básicas """
@@ -230,7 +244,17 @@ def p_factor_expr(p):
    p[0] = p[2]
 
 
+# Definición de comentarios
+def p_comentario(p):
+   'comentario : COMENTARIO'
+   global comentarios
+   comentarios = comentarios + 1
+   p[0] = None
+
+
 """ CONDICIONES """
+
+# Condicion
 def p_condicion(p):
    """ condicion : expresion MAYORQUE expresion
                             | expresion MENORQUE expresion
@@ -248,7 +272,7 @@ def p_condicion(p):
    tempY = 0
 
    # Asigna los valores dependiendo si es ID o un int
-   if p[1] and p[3] in variables:
+   if p[1] in variables and p[3] in variables:
       tempX = variables[p[1]]
       tempY = variables[p[3]]
    elif p[1] in variables and isinstance(p[3], int):
@@ -257,10 +281,13 @@ def p_condicion(p):
    elif p[3] in variables and isinstance(p[1], int):
       tempX = p[1]
       tempY = variables[p[3]]
+   else:
+      tempX = p[1]
+      tempY = p[3]
 
    # Mayorque
    if p[2] == '>':
-      p[0] = tempX >tempY
+      p[0] = (tempX >tempY)
 
    # MayorOIgual
    elif p[2] == '>=':
@@ -285,7 +312,7 @@ def p_condicion(p):
 def p_equal(p):
    """ condicion : EQUAL PARENTESISIZQ expresion COMA expresion PARENTESISDER PYC
    """
-
+      
    # Si son iguales
    if p[3] == p[5]:
       p[0] = True
@@ -293,6 +320,7 @@ def p_equal(p):
    # Si no son iguales
    else:
       p[0] = False
+
 
 # Definición de Greater
 def p_greater(p):
@@ -332,6 +360,7 @@ def p_and(p):
    else:
       p[0] = False
 
+
 # Definición de Or
 def p_or(p):
    """ operadorlogico : OR PARENTESISIZQ condicion COMA condicion PARENTESISDER PYC 
@@ -348,11 +377,14 @@ def p_or(p):
 
 """ Operaciones """
 
-# Definición de Substract N2 a N1
+# Definición de Subract N2 a N1
 def p_substr(p):
-   """ operacion : SUBSTR PARENTESISIZQ expresion COMA expresion PARENTESISDER PYC
+   """ operacion : SUBSTR PARENTESISIZQ parametros PARENTESISDER PYC
    """
-   p[0] = p[3] - p[5]
+   resultado = p[3][0] * 2
+   for i in p[3]:
+      resultado = resultado - i
+   p[0] = resultado
 
 
 # Definición de Random(n)
@@ -386,24 +418,178 @@ def p_div(p):
    p[0] = p[3] / p[5]
 
 
+# Definición de Sum
+def p_sum(p):
+   """ operacion : SUM PARENTESISIZQ parametros PARENTESISDER PYC
+   """
+   
+   # Como se recibe una lista de parámetros, se suman los parámetros recibidos
+   resultado = 0
+   for i in p[3]:
+      resultado = resultado + i
+      
+   p[0] = resultado
+
+
+# Definición de Mult
+def p_mult(p):
+   """ operacion : MULT PARENTESISIZQ parametros PARENTESISDER PYC
+   """
+   # Como se recibe una lista de parámetros, se multiplican los parámetros recibidos
+   resultado = 1
+   for i in p[3]:
+      resultado = resultado * i
+      
+   p[0] = resultado
+
+
+""" PARAMETROS DE OPERACIONES """
+
+
+# Parametros (se dan en forma de una lista)
+def p_parametros(p):
+    '''parametros : expresion
+                             | parametros COMA expresion'''
+
+    # Si es solo una expresion
+    if len(p) == 2:
+       p[0] = [p[1]]
+
+    # Si son más de dos
+    else:
+       p[0] = p[1] + [p[3]]
+
+
+""" Funciones reservadas """
+
+
+# Definición de run
+def p_run(p):
+   """ funcionreservada : RUN CORCHETEIZQ ordenes CORCHETEDER PYC
+   """
+   # Solo devuelve las órdenes a ejecutar
+   p[0] = p[3]
+
+
+# Definición de Repeat
+def p_repeat(p):
+   """ funcionreservada : REPEAT valor CORCHETEIZQ ordenes CORCHETEDER PYC
+   """
+   # Devuelve las ordenes a ejecutar repetidas N veces
+   p[0] = p[2] * p[4]
+
+
+# Definición de if
+def p_if(p):
+   """ funcionreservada : IF PARENTESISIZQ condicion PARENTESISDER CORCHETEIZQ ordenes CORCHETEDER PYC
+   """
+   # Si se cumple la condición, devuelve las ordenes a ejecutar
+   if p[3] == True:
+      p[0] = p[6]
+
+
+# Definición de ifelse
+def p_ifelse(p):
+   """ funcionreservada : IFELSE PARENTESISIZQ condicion PARENTESISDER CORCHETEIZQ ordenes CORCHETEDER CORCHETEIZQ ordenes CORCHETEDER PYC
+   """
+   # Si se cumple la condición, devuelve las ordenes a ejecutar
+   if p[3] == True:
+      p[0] = p[6]
+   else:
+      p[0] = p[9]
+
+
+# Definición de until
+def p_until(p):
+   """ funcionreservada : UNTIL CORCHETEIZQ ordenes CORCHETEDER CORCHETEIZQ condicionciclo CORCHETEDER PYC
+                                          | UNTIL CORCHETEIZQ ordenes CORCHETEDER PARENTESISIZQ condicionciclo  PARENTESISDER PYC
+   """
+   # Devuelve el par ordenado con la respectiva condicion
+   p[0] = ['UNTIL', p[3], p[6]]
+
+
+# Definición de while
+def p_while(p):
+   """ funcionreservada : WHILE  CORCHETEIZQ condicionciclo CORCHETEDER CORCHETEIZQ ordenes CORCHETEDER PYC
+                                          | WHILE PARENTESISIZQ condicionciclo PARENTESISDER CORCHETEIZQ ordenes CORCHETEDER PYC
+   """
+   # Devuelve el par ordenado con la respectiva condicion
+   p[0] = ['WHILE', p[3], p[6]]
+
+
+# Condición que debe ser devuelta para evaluar en los ciclos UNTIL y WHILE
+def p_condicionciclo(p):
+   """ condicionciclo : expresion MAYORQUE expresion
+                            | expresion MENORQUE expresion
+                            | expresion MENOROIGUAL expresion
+                            | expresion MAYOROIGUAL expresion
+                            | expresion IGUAL expresion
+                            | valor IGUAL valor
+                            | valor  MAYORQUE valor 
+                            | valor  MENORQUE valor 
+                            | valor  MENOROIGUAL valor 
+                            | valor  MAYOROIGUAL valor 
+   """
+   # Crea la formación en forma de lista
+   condicion = []
+   for i in p:
+      condicion.append(i)
+   condicion.pop(0)
+
+   # Devuelve la condición en forma de lista para evaluarla más fácil
+   p[0] = [condicion]
+
+
+""" ORDENES """
+
+# Ordenes (se dan en forma de una lista de listas)
+def p_ordenes(p):
+    '''ordenes : continue
+                       | ordenes continue'''
+
+    if len(p) == 2:
+       p[0] = [p[1]]
+    else:
+       p[0] = p[1] + [p[2]]
+
+
+""" PROCEDIMIENTOS """
+
+# Definición de procedimientos
+def p_funciones(p):
+   """ funcion : PARA ID CORCHETEIZQ parametros CORCHETEDER ordenes FIN
+   """
+      
+   if p[2] in variables:
+      lista_errores.append("ERROR: No se puede crear el procedimiento en la linea {0} con el nombre de una variable ya asignada".format(p.lineno(2)))
+
+   if p[2] in funciones:
+      lista_errores.append("ERROR: No se puede crear el procedimiento en la linea {0} con el nombre de un procedimiento ya creado".format(p.lineno(2)))
+      
+   else:
+      p[0] = funciones[p[2]] = ['FUNCION', p[2], p[4], p[6]]   
+
+
 """ ERRORES """
 
 # Manejo de errores
 def p_error(p):
+   print("Error de sintaxis encontrado:")
    if p is not None:
-      print("Error de sintaxis en el token:", p.type, p.lineno)
+      print("Error de sintaxis en el token {0} {1} en la línea {2}\n".format(p.type, p.value, p.lineno))
       parser.errok()
    else:
-      print("Entrada inesperada")
-      
+      print("Entrada inesperada\n")
       
    # Look-ahead para buscar el ";" del final (AUN NO IMPLEMENTADO)
    while True:
       # Obtiene el siguiente token
       tok = parser.token()
+
       # Si no detecta punto y coma
       if not tok:
          break
+
    # Reinicia el parser
    parser.restart()
 
@@ -414,13 +600,33 @@ parser = yacc.yacc()
 print("\n--------- Resultados del parser: (Incluye errores que debe dar) ---------") # Nueva linea solo para separar los resultados del parser del lexer
 
 # Crea el printer para poder imprimir tanto en el Shell de Python como en CMD
-pp = pprint.PrettyPrinter(indent = 2)
+pp = pprint.PrettyPrinter()
 
 # Implementación para leer un archivo que será el insumo del parser
 with open(archivo_programa, 'r') as archivo:
    insumo = archivo.read()
-   # Imprime el resultado
-   pp.pprint(parser.parse(insumo))
 
-# Imprime el diccionario de variables creadas/modificadas durante el programa
-print("\nDiccionario de variables almacenadas:\n", variables)
+   resultado = parser.parse(insumo)
+
+   # Verifica si hay al menos un comentario   
+   if comentarios == 0:
+      print("ERROR: El programa debe tener al menos un comentario")
+      sys.exit(1)
+
+   # Verifica si hay al menos una variable 
+   if len(variables) == 0:
+      print("ERROR: El programa debe tener al menos una asignación de variable")
+      sys.exit(1)
+
+   # Si no hay errores de sintaxis
+   if resultado != None:
+      # Imprime los errores del programa
+      for error in lista_errores:
+         print(error)
+         
+      print('\n') 
+      pp.pprint(resultado)
+
+with open("error.txt", "w+") as archivo_resultado:
+   for i in lista_errores:
+      archivo_resultado.write(i + '\n')
