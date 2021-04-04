@@ -1,3 +1,11 @@
+/** Instituto Tecnológico de Costa Rica
+ *  Lenguajes, Compiladores e Interpretes
+ *  Prof. Marco Hernandez Vasquez
+ *  I Semestre, 2021
+ *
+ * @author Steven Badilla, Valeria Ortiz, Andrey Sanchez, Bryan Solano
+ */
+
 package IDLE;
 
 import archivos.Editor;
@@ -9,12 +17,20 @@ import java.io.File;
 
 public class IDLE extends JFrame {
 
+    // Definicion del Panel contenedor de los demas paneles
     private JPanel contentPane;
+
+    // Definicion de los paneles a agregar
     private BotonesPrincipales botonesPrincipales;
     private TextEditor textEditor;
 
+    // Definicion del objeto editor que maneja el txt
     private Editor editor;
 
+    /**
+     * Main que crea el JFrame y sus componentes graficos
+     * @param args
+     */
     public static void main(String[] args){
         EventQueue.invokeLater(new Runnable() {
             @Override
@@ -31,6 +47,9 @@ public class IDLE extends JFrame {
 
     }
 
+    /**
+     * Constructor del JFrame y sus componentes
+     */
     public IDLE(){
         editor = new Editor();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -47,6 +66,10 @@ public class IDLE extends JFrame {
         contentPane.add(textEditor, BorderLayout.CENTER);
     }
 
+    /**
+     * Funcion que comunica el manejo de la informacion del txt con la seleccion
+     * basica de archivos en la interfaz para abrir un txt existente
+     */
     public void abrirTXT(){
         JFileChooser fc = new JFileChooser();
         if(fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
@@ -62,10 +85,19 @@ public class IDLE extends JFrame {
         }
     }
 
+    /**
+     * Funcion que comunica el manejo de la informacion del txt con la seleccion
+     * basica de archivos en la interfaz para crear un nuevo txt
+     */
     public void crearTXT(){
         editor.crearArchivo();
         textEditor.refresh("");
     }
+
+    /**
+     * Funcion que comunica el manejo de la informacion del txt con la seleccion
+     * basica de archivos en la interfaz para guardar un txt nuevo o existente
+     */
 
     public void guardarTXT(){
         String ruta = "";

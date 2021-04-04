@@ -1,3 +1,11 @@
+/** Instituto Tecnológico de Costa Rica
+ *  Lenguajes, Compiladores e Interpretes
+ *  Prof. Marco Hernandez Vasquez
+ *  I Semestre, 2021
+ *
+ * @author Steven Badilla, Valeria Ortiz, Andrey Sanchez, Bryan Solano
+ */
+
 package IDLE;
 
 import java.awt.*;
@@ -9,18 +17,8 @@ import javax.swing.border.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 
-/**
- *  This class will display line numbers for a related text component. The text
- *  component must use the same line height for each line. TextLineNumber
- *  supports wrapped lines and will highlight the line number of the current
- *  line in the text component.
- *
- *  This class was designed to be used as a component added to the row header
- *  of a JScrollPane.
- */
-public class TextLineNumber extends JPanel
-        implements CaretListener, DocumentListener, PropertyChangeListener
-{
+
+public class TextLineNumber extends JPanel implements CaretListener, DocumentListener, PropertyChangeListener {
     public final static float LEFT = 0.0f;
     public final static float CENTER = 0.5f;
     public final static float RIGHT = 1.0f;

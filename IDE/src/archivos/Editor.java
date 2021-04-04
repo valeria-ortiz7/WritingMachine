@@ -1,3 +1,11 @@
+/** Instituto Tecnológico de Costa Rica
+ *  Lenguajes, Compiladores e Interpretes
+ *  Prof. Marco Hernandez Vasquez
+ *  I Semestre, 2021
+ *
+ * @author Steven Badilla, Valeria Ortiz, Andrey Sanchez, Bryan Solano
+ */
+
 package archivos;
 
 import java.io.IOException;
@@ -59,6 +67,10 @@ public class Editor {
         archivo = null;
     }
 
+    /**
+     * Funcion para identificar si el archivo actual es nuevo o no
+     * @return bool: True si el archivo es null, False en caso contrario
+     */
     public boolean isNuevo(){
         return archivo == null;
     }

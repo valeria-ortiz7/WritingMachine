@@ -1,3 +1,11 @@
+/** Instituto Tecnológico de Costa Rica
+ *  Lenguajes, Compiladores e Interpretes
+ *  Prof. Marco Hernandez Vasquez
+ *  I Semestre, 2021
+ *
+ * @author Steven Badilla, Valeria Ortiz, Andrey Sanchez, Bryan Solano
+ */
+
 package archivos;
 
 import java.io.BufferedReader;
