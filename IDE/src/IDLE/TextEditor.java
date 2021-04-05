@@ -16,6 +16,7 @@ import java.awt.*;
 public class TextEditor extends JPanel {
 
     // Definicion de los componentes del Panel
+    private JPanel panel1;
     private JTextArea taEditor;
     private JScrollPane scrollpane;
     private TextLineNumber tln;
@@ -30,12 +31,17 @@ public class TextEditor extends JPanel {
         add(scrollpane, BorderLayout.CENTER);
 
         taEditor = new JTextArea();
+        taEditor.setBackground(new Color(26,29,33));
+        taEditor.setForeground(Color.WHITE);
+        taEditor.setCaretColor(Color.WHITE);
         scrollpane.setViewportView(taEditor);
 
         tln = new TextLineNumber(taEditor);
         tln.setBorderGap(-1);
         tln.setDigitAlignment(CENTER_ALIGNMENT);
         tln.setCurrentLineForeground(Color.GREEN);
+        tln.setBackground(new Color(78, 84, 94));
+        tln.setForeground(new Color(176, 176, 176));
         scrollpane.setRowHeaderView(tln);
 
     }
