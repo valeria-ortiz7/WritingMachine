@@ -57,7 +57,7 @@ public class IDLE extends JFrame {
     public IDLE(){
         editor = new Editor();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setBounds(100,100,600,500);
+        setBounds(200,50,900,700);
         contentPane = new JPanel();
         contentPane.setBorder(new EmptyBorder(5,5,5,5));
         contentPane.setLayout(new BorderLayout(0,0));
@@ -76,7 +76,7 @@ public class IDLE extends JFrame {
 
         this.setTitle("Writting Machine - Documento sin guardar");
 
-        eventlog = new Documento("/home/andreyzarttys/Documentos/TEC/VII Semestre/Compi/WritingMachine/IDE/errorLog.txt");
+        eventlog = new Documento("/home/andreyzarttys/Documentos/TEC/VII_Semestre/Compi/WritingMachine/IDE/errorLog.txt");
     }
 
     /**
@@ -181,11 +181,15 @@ public class IDLE extends JFrame {
         }
     }
 
+    /**
+     * Funcion que comunica el manejo de la informacion del txt con el compilador
+     * de python para compilar el archivo actual
+     */
     public void compilar(){
         // Se inicializa el proceso de compilacion
         try{
             compilerLog.refresh(eventlog.getTexto());
-            Process process = Runtime.getRuntime().exec("python3 /home/andreyzarttys/Documentos/TEC/VII Semestre/Compi/WritingMachine/parser.py " + editor.nombreTxt());
+            Process process = Runtime.getRuntime().exec("python3 /home/andreyzarttys/Documentos/TEC/VII_Semestre/Compi/WritingMachine/parser.py " + editor.nombreTxt());
         }
         catch (Exception e){
             JOptionPane.showMessageDialog(this,e.getMessage(),"IDLE",JOptionPane.ERROR_MESSAGE);
