@@ -19,11 +19,13 @@ public class BotonesPrincipales extends JPanel implements ActionListener {
     public static final String CREAR = "CREAR";
     public static final String ABRIR = "ABRIR";
     public static final String GUARDAR = "GUARDAR";
+    public static final String COMPILAR = "COMPILAR";
 
     // Definicion de los botones de interfaz
     private JButton buttonAbrir;
     private JButton buttonCrear;
     private JButton buttonGuardar;
+    private JButton buttonCompilar;
 
     // Inclusion del JFrame, debido a ser componentes activos en el
     private IDLE ventanaPrincipal;
@@ -57,6 +59,11 @@ public class BotonesPrincipales extends JPanel implements ActionListener {
         buttonGuardar.setActionCommand(GUARDAR);
         buttonGuardar.addActionListener(this);
         add(buttonGuardar);
+
+        buttonCompilar = new JButton("Compilar");
+        buttonCompilar.setActionCommand(COMPILAR);
+        buttonCompilar.addActionListener(this);
+        add(buttonCompilar);
     }
 
 
@@ -74,6 +81,9 @@ public class BotonesPrincipales extends JPanel implements ActionListener {
         }
         else if(actionEvent.getActionCommand().equals(GUARDAR)){
             ventanaPrincipal.guardarTXT();
+        }
+        else if(actionEvent.getActionCommand().equals(COMPILAR)){
+            ventanaPrincipal.compilar();
         }
     }
 }

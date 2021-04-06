@@ -44,4 +44,12 @@ public class CompilerLog extends JPanel{
         scrollpane.setViewportView(taLog);
 
     }
+
+    /**
+     * Funcion para reemplazar el texto en el editor
+     * @param texto: String a agregar en el editor
+     */
+    public void refresh(String texto){
+        taLog.setText(texto);
+    }
 }

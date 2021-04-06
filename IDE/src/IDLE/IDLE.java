@@ -8,7 +8,7 @@
 
 package IDLE;
 
-import archivos.Editor;
+import archivos.*;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -28,6 +28,8 @@ public class IDLE extends JFrame {
 
     // Definicion del objeto editor que maneja el txt
     private Editor editor;
+
+    private Documento eventlog;
 
     /**
      * Main que crea el JFrame y sus componentes graficos
@@ -73,6 +75,8 @@ public class IDLE extends JFrame {
         contentPane.add(compilerLog, BorderLayout.SOUTH);
 
         this.setTitle("Writting Machine - Documento sin guardar");
+
+        eventlog = new Documento("/home/andreyzarttys/Documentos/TEC/VII Semestre/Compi/WritingMachine/IDE/errorLog.txt");
     }
 
     /**
@@ -89,7 +93,6 @@ public class IDLE extends JFrame {
                 String contenido = "";
                 try{
                     contenido = editor.abrirArchivo(f.getAbsolutePath());
-                    System.out.println(f.getAbsolutePath());
                     textEditor.refresh(contenido);
                 }
                 catch (Exception e){
@@ -115,7 +118,8 @@ public class IDLE extends JFrame {
                 }
             }
         }
-        this.setTitle("Writting Machine - " + editor.nombreTxt());
+        String path = editor.nombreTxt().substring(editor.nombreTxt().lastIndexOf('/') + 1);
+        this.setTitle("Writting Machine - " + path);
 
     }
 
@@ -164,6 +168,36 @@ public class IDLE extends JFrame {
         catch (Exception e){
             JOptionPane.showMessageDialog(this,e.getMessage(),"IDLE",JOptionPane.ERROR_MESSAGE);
         }
-        this.setTitle("Writting Machine - " + editor.nombreTxt());
+        String path = editor.nombreTxt().substring(editor.nombreTxt().lastIndexOf('/') + 1);
+        this.setTitle("Writting Machine - " + path);
+
+
+
+        try{
+            compilerLog.refresh(eventlog.getTexto());
+        }
+        catch (Exception e){
+            JOptionPane.showMessageDialog(this,e.getMessage(),"IDLE",JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public void compilar(){
+        // Se inicializa el proceso de compilacion
+        try{
+            compilerLog.refresh(eventlog.getTexto());
+            Process process = Runtime.getRuntime().exec("python3 /home/andreyzarttys/Documentos/TEC/VII Semestre/Compi/WritingMachine/parser.py " + editor.nombreTxt());
+        }
+        catch (Exception e){
+            JOptionPane.showMessageDialog(this,e.getMessage(),"IDLE",JOptionPane.ERROR_MESSAGE);
+        }
+
+        // Se refresca con los resultados y se deja listo para la proxima compilacion
+        try{
+            compilerLog.refresh(eventlog.getTexto());
+            eventlog.guardar("Iniciando el proceso de compilacion...");
+        }
+        catch (Exception e){
+            JOptionPane.showMessageDialog(this,e.getMessage(),"IDLE",JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

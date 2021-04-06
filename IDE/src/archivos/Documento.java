@@ -70,8 +70,7 @@ public class Documento {
      * @return path: Nombre del archivo sin todo el path
      */
     public String getTxtPath(){
-        String path = txtPath.substring(txtPath.lastIndexOf('/') + 1);
-        return path;
+        return txtPath;
     }
 
 }
