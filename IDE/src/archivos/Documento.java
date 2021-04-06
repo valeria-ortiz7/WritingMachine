@@ -21,12 +21,17 @@ public class Documento {
      */
     private File txt;
 
+    // Definicion de un string con el path del archivo
+    private String txtPath;
+
+
     /**
      * Constructor de la clase Documento
      * @param nombre: Ruta del archivo
      */
     public Documento(String nombre){
         txt = new File(nombre);
+        txtPath = nombre;
 
     }
 
@@ -58,6 +63,15 @@ public class Documento {
         PrintWriter pw = new PrintWriter(txt);
         pw.write(texto);
         pw.close();
+    }
+
+    /**
+     * Funcion que retorna el nombre del archivo
+     * @return path: Nombre del archivo sin todo el path
+     */
+    public String getTxtPath(){
+        String path = txtPath.substring(txtPath.lastIndexOf('/') + 1);
+        return path;
     }
 
 }

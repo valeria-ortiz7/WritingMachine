@@ -74,4 +74,12 @@ public class Editor {
     public boolean isNuevo(){
         return archivo == null;
     }
+
+    /**
+     * Funcion para retornar el nombre del archivo en caso de ya existir
+     * @return archivo.getTxtPath(): String con el nombre de archivo
+     */
+    public String nombreTxt(){
+        return archivo.getTxtPath();
+    }
 }

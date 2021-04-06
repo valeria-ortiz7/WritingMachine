@@ -12,6 +12,7 @@ import archivos.Editor;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.File;
 
@@ -70,6 +71,8 @@ public class IDLE extends JFrame {
         compilerLog = new CompilerLog();
         compilerLog.setPreferredSize(new Dimension(600,100));
         contentPane.add(compilerLog, BorderLayout.SOUTH);
+
+        this.setTitle("Writting Machine - Documento sin guardar");
     }
 
     /**
@@ -77,18 +80,43 @@ public class IDLE extends JFrame {
      * basica de archivos en la interfaz para abrir un txt existente
      */
     public void abrirTXT(){
-        JFileChooser fc = new JFileChooser();
-        if(fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
-            File f = fc.getSelectedFile();
-            String contenido = "";
-            try{
-                contenido = editor.abrirArchivo(f.getAbsolutePath());
-                textEditor.refresh(contenido);
-            }
-            catch (Exception e){
-                JOptionPane.showMessageDialog(this,e.getMessage(),"IDLE",JOptionPane.ERROR_MESSAGE);
+        if(editor.isNuevo() && textEditor.getTexto().equals("")){
+            JFileChooser fc = new JFileChooser();
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("TEXT FILES", "txt", "text");
+            fc.setFileFilter(filter);
+            if(fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
+                File f = fc.getSelectedFile();
+                String contenido = "";
+                try{
+                    contenido = editor.abrirArchivo(f.getAbsolutePath());
+                    System.out.println(f.getAbsolutePath());
+                    textEditor.refresh(contenido);
+                }
+                catch (Exception e){
+                    JOptionPane.showMessageDialog(this,e.getMessage(),"IDLE",JOptionPane.ERROR_MESSAGE);
+                }
             }
         }
+        else {
+            int reply = JOptionPane.showConfirmDialog(this, "Desea guardar el archivo?", "IDLE", JOptionPane.YES_NO_OPTION);
+            if (reply == JOptionPane.YES_OPTION) {
+                guardarTXT();
+            }
+            JFileChooser fc = new JFileChooser();
+            if(fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION){
+                File f = fc.getSelectedFile();
+                String contenido = "";
+                try{
+                    contenido = editor.abrirArchivo(f.getAbsolutePath());
+                    textEditor.refresh(contenido);
+                }
+                catch (Exception e){
+                    JOptionPane.showMessageDialog(this,e.getMessage(),"IDLE",JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
+        this.setTitle("Writting Machine - " + editor.nombreTxt());
+
     }
 
     /**
@@ -96,8 +124,22 @@ public class IDLE extends JFrame {
      * basica de archivos en la interfaz para crear un nuevo txt
      */
     public void crearTXT(){
-        editor.crearArchivo();
-        textEditor.refresh("");
+        if(editor.isNuevo() && textEditor.getTexto().equals("")){
+            editor.crearArchivo();
+            this.setTitle("Writting Machine - Documento sin guardar");
+            textEditor.refresh("");
+        }
+        else {
+            int reply = JOptionPane.showConfirmDialog(this, "Desea guardar el archivo?", "IDLE", JOptionPane.YES_NO_OPTION);
+            if (reply == JOptionPane.YES_OPTION) {
+                guardarTXT();
+            }
+            editor.crearArchivo();
+            this.setTitle("Writting Machine - Documento sin guardar");
+            textEditor.refresh("");
+
+        }
+
     }
 
     /**
@@ -111,7 +153,7 @@ public class IDLE extends JFrame {
         if(editor.isNuevo()){
             JFileChooser fc = new JFileChooser();
             if(fc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION){
-                ruta = fc.getSelectedFile().getAbsolutePath();
+                ruta = fc.getSelectedFile().getAbsolutePath()+".txt";
             }
         }
         contenido = textEditor.getTexto();
@@ -122,5 +164,6 @@ public class IDLE extends JFrame {
         catch (Exception e){
             JOptionPane.showMessageDialog(this,e.getMessage(),"IDLE",JOptionPane.ERROR_MESSAGE);
         }
+        this.setTitle("Writting Machine - " + editor.nombreTxt());
     }
 }
