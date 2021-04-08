@@ -408,7 +408,7 @@ def p_power(p):
 
 def p_power_error(p):
       'operacion : POWER error PYC'
-      print("ERROR: Error de sintaxis en la expresión Power", p)
+      lista_errores.append("ERROR: Error de sintaxis en la expresión Power", p)
 
 
 # Definición de Div
@@ -576,10 +576,10 @@ def p_funciones(p):
 def p_error(p):
    print("Error de sintaxis encontrado:")
    if p is not None:
-      print("Error de sintaxis en el token {0} {1} en la línea {2}\n".format(p.type, p.value, p.lineno))
+      lista_errores.append("Error de sintaxis en el token {0} {1} en la línea {2}\n".format(p.type, p.value, p.lineno))
       parser.errok()
    else:
-      print("Entrada inesperada\n")
+      lista_errores.append("Entrada inesperada\n")
       
    # Look-ahead para buscar el ";" del final (AUN NO IMPLEMENTADO)
    while True:
@@ -605,28 +605,28 @@ pp = pprint.PrettyPrinter()
 # Implementación para leer un archivo que será el insumo del parser
 with open(archivo_programa, 'r') as archivo:
    insumo = archivo.read()
-
    resultado = parser.parse(insumo)
+
+   # Flag para verificar si hay identificadores y comentarios
+   flag = True
 
    # Verifica si hay al menos un comentario   
    if comentarios == 0:
-      print("ERROR: El programa debe tener al menos un comentario")
-      sys.exit(1)
-
+      flag = False
+      lista_errores = []
+      lista_errores.append("ERROR: El programa debe tener al menos un comentario")
+      
    # Verifica si hay al menos una variable 
    if len(variables) == 0:
-      print("ERROR: El programa debe tener al menos una asignación de variable")
-      sys.exit(1)
-
+      flag = False
+      lista_errores = []
+      lista_errores.append("ERROR: El programa debe tener al menos una asignación de variable")
+   
    # Si no hay errores de sintaxis
-   if resultado != None:
-      # Imprime los errores del programa
-      for error in lista_errores:
-         print(error)
-         
-      print('\n') 
+   if resultado != None and flag == True:      
       pp.pprint(resultado)
 
+# Escribe los errores encontrados en la lista de errores
 with open("error.txt", "w+") as archivo_resultado:
    for i in lista_errores:
       archivo_resultado.write(i + '\n')
