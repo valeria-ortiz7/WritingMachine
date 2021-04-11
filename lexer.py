@@ -19,6 +19,7 @@ TODO: Solucionar la detección de multiplicaciones
 # Lista de palabras reservadas, se hace aparte de los tokens para no generar una expresión regular para cada una
 palabras_reservadas = {
     'Def'                       : 'DEF',
+    'MAIN'                    : 'MAIN',
     'Put'                       : 'PUT',
     'Add'                     : 'ADD',
     'ContinueUp'       : 'CONTINUEUP',
