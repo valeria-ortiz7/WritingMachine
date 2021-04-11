@@ -1,57 +1,11 @@
-3 * -4
-3 - 2     20+20
-2 * (3 - 4 *-1)
-2^2 
 
 -- Hola
 
-Def i_a = 2;
-Def iA@ = 7;
-Put i = 3*2;
-Put iA@ = 3 * 2;
-
-Add [id23];
-Add [i_a 2];
-
-Add [i_a ixa@];
-
-ContinueUp 2;
-ContinueUp 2*3+5+4;
-ContinueUp i_a;
-ContinueLeft (9^2);
-
-Equal(0, 2);
-Equal(7, 7);
-Equal(7*3+4, 4+3*7);
-
-Random(44);
-Random(-10);
-Random(360);
-
-Substr(10, 7, 3, 5);
-
-Power(2,2);
-Div(12, 2);
-
-And(3>2, 3=3); 
-And(3<2, 3=3);  
-
-Or(i_a>3, 3=3);
-Or(2>3, 3=4);
-
-Sum(7, 3,3,3,3,3);
-Mult(2, 3, 2);
-
-If (26 > 25) [ContinueUp 2; ContinueLeft 3*3;];
-
-Repeat 2 [ContinueUp 2; ContinueLeft 3*3;];
-Run [ContinueUp 2; ContinueLeft 3*3;];
-
-IfElse (2 > 25) [ContinueUp 2; ContinueLeft 3*3;] [ContinueUp 0;];
-
-Until [ContinueUp 20;] (i_a < 4);
-While [2>3] [ContinueDown 2;];
+Def sds = 1;
+Def sas = 1;
 
 
-PARA foo [2, 2] ContinueUp 2; FIN
-PARA i_a [2, 2] ContinueUp 2; FIN
+
+
+
+Until [Until [ContinueLeft 10; Add [sas];] [sas <3];ContinueUp 4;  Add [sds];] [sds <4];

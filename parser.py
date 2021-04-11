@@ -46,12 +46,19 @@ TODO:
 6. Modificar la regla de "ordenes" para que acepte todas las funciones del programa (until, pos, procedimientos, etc)
 
 """
+# Variables globales
+global Iteracion
+Iteracion = False
+
 
 # Lista de variables almacenadas. Guardará las variables creadas en el diccionario como {ID : valor}
 variables = {}
 
 # Lista de variables locales almacenadas. Guardará las variables creadas en el diccionario como {ID : valor}
 variables_locales = {}
+
+# Lista de variables booleanas. Solo será para dar un seguimiento a el tipo de variable
+variablesbool = {}
 
 # Lista de funciones almacenadas del programa
 funciones = {}
@@ -64,6 +71,9 @@ comentarios = 0
 
 # Main
 main = 0
+
+# Iteracion
+
 
 # Precedencia para asignar a las operaciones
 precedence = (
@@ -92,35 +102,94 @@ def p_sentencias(p):
 def p_sentencia_expr(p):
    ''' sentencia : expresion
                            | add
+                           | put
                            | continue
+                           | pos
                            | operacion
                            | condicion
                            | operadorlogico
                            | comentario
                            | funcionreservada
                            | funcion
+                           | funcioniter
    '''
-   p[0] = p[1]
+   if isinstance(p[1],list):
+       if p[1][0] == "Until":
+           p[0] = until_exe(p[1])
+   else:
+       p[0] = p[1]
         
+def until_exe(until):
+    recorrido = []
+    while value(until[2][0]) < value(until[2][2]):
+        for i in exe(until[1]):
+            recorrido.append(i)
+
+    return recorrido
+
+def if_exe(if_):
+    recorrido = []
+    if value(if_[1][0])  < value(if_[1][2]):
+        for i in exe(if_[2]):
+            recorrido.append(i)
+        return recorrido
+
+def ifelse_exe(ifelse):
+    recorrido = []
+    if value(ifelse[1][0]) < value(ifelse[1][2]):
+        for i in exe(ifelse[2]):
+            recorrido.append(i)
+    else:
+        for i in exe(ifelse[3]):
+            recorrido.append(i)
+    return recorrido
+
+def exe(listtoexe):
+    recorrido = []
+    for i in listtoexe:
+        if isinstance(i, list):
+            if i[0] == "Add":
+                variables[i[1]] = variables[i[1]] + i[2]
+            elif i[0] == "Put":
+                variables[i[1]] = i[2]
+            elif i[0] == "If":
+                recorrido.append(if_exe(i))
+            elif i[0] == "IfElse":
+                recorrido.append(ifelse_exe(i))
+            elif i[0] == "Until":
+                recorrido.append(until_exe(i))
+            else:
+                recorrido.append(i)
+        else:
+            recorrido.append(i)
+    return recorrido
+
+def value(x):
+    if x in variables:
+        return variables[x]
+    else:
+        return x
 
 """ Asignaciones """
 
 # Definición de asignación
 def p_asignacion_global(p):
    ''' sentencia : DEF ID IGUAL valor PYC
+                 | DEF ID IGUAL TRUE PYC
+                 | DEF ID IGUAL FALSE PYC
    '''
    p[0] = variables[p[2]] = p[4]
-
+   if p[4] == "True" or p[4] == "False":
+       variablesbool[p[2]] = p[4]
 
 # PUT: Le cambia el valor a una variable ya existente
 def p_sentencia_cambio(p):
-   ''' sentencia : PUT ID IGUAL valor PYC
-                           | PUT ID IGUAL expresion PYC
+   ''' put : PUT ID IGUAL valor PYC
+           | PUT ID IGUAL expresion PYC
    '''
    # Si la variable ya existe, le cambia el valor
    if p[2] in variables:
-      variables[p[2]] = p[4]
-      p[0] = p[4]
+       p[0] = [p[1], p[2], value(p[4])]
 
    # Si no existe, da error de variable indefinida
    else:
@@ -130,28 +199,35 @@ def p_sentencia_cambio(p):
 # Add: Incrementa el valor de una variable
 def p_add(p):
    ''' add : ADD CORCHETEIZQ ID CORCHETEDER PYC
-                 | ADD CORCHETEIZQ ID ID CORCHETEDER PYC
-                 | ADD CORCHETEIZQ ID INT CORCHETEDER PYC
+           | ADD CORCHETEIZQ ID ID CORCHETEDER PYC
+           | ADD CORCHETEIZQ ID INT CORCHETEDER PYC
    '''
-
    # Revisa primero si el ID existe en el diccionario, en caso de que no, da el error
    if p[3] not in variables:
          lista_errores.append("ERROR: No se puede incrementar en 1 al identificador indefinido {0} en la linea {1}".format(p[3], p.lineno(3)))
+
+   # Revisa que el identificador sea de tipo entero
+   elif p[3] in variablesbool:
+         lista_errores.append("ERROR: No se puede incrementar en 1 al identificador booleano {0} en la linea {1}".format(p[3], p.lineno(3)))
+
 
    # Si sí existe
    else:
 
       # Si solo recibe Add[id]
       if len(p) == 6:
-         p[0] = variables[p[3]] = variables[p[3]] + 1
+         p[0] = [p[1] , p[3] , 1]
 
       # Si recibe Add[id var]
       elif len(p) == 7:
-         if p[4] in variables:
-            p[0] = variables[p[3]] = variables[p[3]] + variables[p[4]]
+         if p[4] in variablesbool:
+            lista_errores.append("ERROR: No se puede incrementar con un valor booleano en la linea {1}".format(p[4], p.lineno(4)))
 
-         if isinstance(p[4], int):
-            p[0] = variables[p[3]] = variables[p[3]] + int(p[4])
+         elif p[4] in variables:
+            p[0] = [p[1] , p[3] , variables[p[4]] ]
+
+         elif isinstance(p[4], int):
+            p[0] =  [p[1] , p[3] ,  int(p[4])]
 
          else:
             lista_errores.append("ERROR: No se puede incrementar a {0} en el identificador indefinido {1} en la linea {2}".format(p[3], p[4], p.lineno(4)))
@@ -160,7 +236,7 @@ def p_add(p):
 # Definición de valor
 def p_valor(p):
    ''' valor : INT
-                  | ID
+             | ID
    '''
    p[0] = p[1]
 
@@ -182,27 +258,144 @@ def p_continue(p):
                         | CONTINUELEFT ID PYC
                         | CONTINUELEFT expresion PYC
    '''
-   
    if isinstance(p[2], int):
       p[0] = [p[1], p[2]]
 
    if not isinstance(p[2], int):
-      if p[2] in variables:
+      if p[2] in variablesbool:
+         lista_errores.append("ERROR: No se puede mover n cantidades con el identificador booleano {0} en la linea {1}".format(p[2], p.lineno(2)))
+
+      elif p[2] in variables:
          p[0] = [p[1], variables[p[2]]]
 
-      if p[2] not in variables:
-         lista_errores.append("ERROR: No se puede mover n cantidades con el identificador indefinido {0} en la linea".format(p[2], p.lineno(2)))
-   
+      elif p[2] not in variables:
+         lista_errores.append("ERROR: No se puede mover n cantidades con el identificador indefinido {0} en la linea {1}".format(p[2], p.lineno(2)))
+
+
+
+
+
+
+""" Pos """
+
+# Definicion de Pos
+def p_pos(p):
+    ''' pos : POS CORCHETEIZQ expresion COMA expresion CORCHETEDER PYC
+            | POS CORCHETEIZQ valor COMA valor CORCHETEDER PYC
+            | POS CORCHETEIZQ valor COMA expresion CORCHETEDER PYC
+            | POS CORCHETEIZQ expresion COMA valor CORCHETEDER PYC
+            | POSX expresion PYC
+            | POSX valor PYC
+            | POSY expresion PYC
+            | POSY valor PYC
+    '''
+    # Si es Pos[]
+    if len(p) == 8:
+        if isinstance(p[3], int) and isinstance(p[5],int):
+            p[0] = [p[1] , p[3] , p[5]]
+        else:
+            if (p[3] in variables and p[5] in variables) or (isinstance(p[3], int) and p[5] in variables) or (p[3] in variables and isinstance(p[5], int)):
+
+                if isinstance(p[3],int):
+                    if (isinstance(variables[p[5]],int)):
+                        p[0] = [p[1], p[3] , variables[p[5]]]
+                    else:
+                        lista_errores.append("ERROR: No se puede cambiar la posicion con el identificador booleano  {0}\n".format(p[5]))
+                elif isinstance(p[5],int):
+                    if isinstance(variables[p[3]], int):
+                        p[0] = [p[1] , variables[p[3]] , p[5]]
+                    else:
+                        lista_errores.append("ERROR: No se puede cambiar la posicion con el identificador booleano  {0}\n".format(p[3]))
+                elif isinstance(variables[p[3]],int) and isinstance(variables[p[5]],int):
+                    p[0] = [p[1] , variables[p[3]] , variables[p[5]]]
+                else:
+                    if not isinstance(variables[p[5]],int):
+                        lista_errores.append("ERROR: No se puede cambiar la posicion con el identificador booleano  {0}\n".format(p[5]))
+                    elif not isinstance(variables[p[3]],int):
+                        lista_errores.append("ERROR: No se puede cambiar la posicion con el identificador booleano  {0}\n".format(p[3]))
+
+            elif (p[3] not in variables):
+                lista_errores.append("ERROR: No se puede cambiar la posicion con el identificador indefinido  {0}\n".format(p[3]))
+            elif (p[5] not in variables):
+                lista_errores.append("ERROR: No se puede cambiar la posicion con el identificador indefinido  {0}\n".format(p[5]))
+    # Si es PosX/PosY
+    if len(p) == 4:
+        if (isinstance(p[2], int)):
+            p[0] = [p[1] , p[2]]
+        elif p[2] in variables:
+            p[0] = [p[1] , variables[p[2]]]
+        elif p[2] in variablesbool:
+            lista_errores.append("ERROR: No se puede cambiar la posicion con el identificador indefinido  {0}\n".format(p[3]))
+        elif p[2] not in variables:
+            lista_errores.append("ERROR: No se puede cambiar la posicion con el identificador booleano  {0}\n".format(p[3]))
+
+
+""" Use Color"""
+
+def p_usecolor(p):
+    '''sentencia : USECOLOR valor PYC
+                 | USECOLOR expresion PYC
+    '''
+    if isinstance(p[2],int):
+        if 1<=p[2]<=3:
+            p[0] = p[2]
+        else:
+            lista_errores.append("ERROR: Los valores aceptados para UseColor son 1,2,3 ")
+
+    else:
+        if p[2] in variablesbool:
+            print("ERROR: No se puede cambiar el color con el identificador booleano  {0}\n".format(p[2]))
+        elif (p[2] in variables):
+            if 1 <= variables[p[2]] <= 3:
+                p[0] = variables[p[2]]
+            else:
+                lista_errores.append("ERROR: Los valores aceptados para UseColor son 1,2,3 ")
+        else:
+            lista_errores.append("ERROR: No se puede cambiar la posicion con el identificador indefinido  {0}\n".format(p[2]))
+
+
+""" Write """
+
+def p_write(p):
+    '''sentencia : DOWN PYC
+                 | UP PYC
+    '''
+    p[0] = p[1]
+
+""" Begin """
+
+def p_begin(p):
+    '''sentencia : BEGIN PYC
+    '''
+    p[0] = p[1]
+
+""" Speed """
+
+def p_speed(p):
+    '''sentencia : SPEED expresion PYC
+                 | SPEED valor PYC
+    '''
+    if isinstance(p[2],int):
+        p[0] = [p[1] , p[2]]
+    else:
+        if p[2] in variablesbool:
+            lista_errores.append("ERROR: No se puede cambiar la velocidad con el identificador booleano  {0}\n".format(p[2]))
+        elif p[2] in variables:
+            p[0] = [p[1] , variables[p[2]]]
+        else:
+            lista_errores.append("ERROR: No se puede cambiar la velocidad con el identificador indefinido  {0}\n".format(p[2]))
+
+
 
 """ Operaciones matemáticas básicas """
 
 # Definicion de operación matemática
 def p_expresion_op(p):
   '''expresion : expresion PLUS expresion
-                         | expresion RESTA expresion
-                         | expresion MULTIPLICACION expresion
-                         | expresion DIVISION expresion
-                         | expresion POTENCIA expresion
+               | expresion RESTA expresion
+               | expresion MULTIPLICACION expresion
+               | expresion DIVISION expresion
+               | expresion POTENCIA expresion
    '''
 
   # Suma
@@ -252,27 +445,55 @@ def p_comentario(p):
    p[0] = None
 
 
+# Definicion de booleano
+def p_bool(p):
+   """ bool : TRUE
+            | FALSE
+   """
+   p[0] = p[1]
+
 """ CONDICIONES """
 
 # Condicion
 def p_condicion(p):
    """ condicion : expresion MAYORQUE expresion
-                            | expresion MENORQUE expresion
-                            | expresion MENOROIGUAL expresion
-                            | expresion MAYOROIGUAL expresion
-                            | expresion IGUAL expresion
-                            | valor IGUAL valor
-                            | valor  MAYORQUE valor 
-                            | valor  MENORQUE valor 
-                            | valor  MENOROIGUAL valor 
-                            | valor  MAYOROIGUAL valor 
+                 | expresion MENORQUE expresion
+                 | expresion MENOROIGUAL expresion
+                 | expresion MAYOROIGUAL expresion
+                 | expresion IGUAL expresion
+                 | valor IGUAL valor
+                 | valor  MAYORQUE valor
+                 | valor  MENORQUE valor
+                 | valor  MENOROIGUAL valor
+                 | valor  MAYOROIGUAL valor
+                 | bool IGUAL bool
+                 | valor IGUAL bool
+                 | bool IGUAL valor
    """
    # Variables temporales para la evaluación
    tempX = 0
    tempY = 0
 
    # Asigna los valores dependiendo si es ID o un int
-   if p[1] in variables and p[3] in variables:
+   if (p[1] in variablesbool or p[1] == "True" or p[1] == "False") and (p[3] in variablesbool or p[3] == "True" or p[3] == "False"):
+      if p[2] == "=":
+         if p[3] in variablesbool and p[1] in variablesbool:
+            tempX = variables[p[1]]
+            tempY = variables[p[3]]
+         elif p[1] in variablesbool:
+            tempX = variables[p[1]]
+            tempY = p[3]
+         elif p[3] in variablesbool:
+            tempX = p[1]
+            tempY = variables[p[3]]
+         else:
+            tempX = p[1]
+            tempY = p[3]
+      else:
+         lista_errores.append("ERROR: No se pueden realizar compraciones mayor o menor con entradas booleanas em la linea {1}".format(p[1], p.lineno(1)))
+
+
+   elif p[1] in variables and p[3] in variables:
       tempX = variables[p[1]]
       tempY = variables[p[3]]
    elif p[1] in variables and isinstance(p[3], int):
@@ -311,6 +532,12 @@ def p_condicion(p):
 # Definición de Equal
 def p_equal(p):
    """ condicion : EQUAL PARENTESISIZQ expresion COMA expresion PARENTESISDER PYC
+                 | EQUAL PARENTESISIZQ valor COMA expresion PARENTESISDER PYC
+                 | EQUAL PARENTESISIZQ expresion COMA valor PARENTESISDER PYC
+                 | EQUAL PARENTESISIZQ valor COMA valor PARENTESISDER PYC
+                 | EQUAL PARENTESISIZQ bool COMA valor PARENTESISDER PYC
+                 | EQUAL PARENTESISIZQ valor COMA bool PARENTESISDER PYC
+                 | EQUAL PARENTESISIZQ bool COMA bool PARENTESISDER PYC
    """
       
    # Si son iguales
@@ -326,7 +553,7 @@ def p_equal(p):
 def p_greater(p):
    """ condicion : GREATER PARENTESISIZQ expresion COMA expresion PARENTESISDER PYC
    """
-   
+
    # Si N1 es mayor
    if p[3] > p[5]:
       p[0] = True
@@ -439,7 +666,7 @@ def p_mult(p):
    resultado = 1
    for i in p[3]:
       resultado = resultado * i
-      
+
    p[0] = resultado
 
 
@@ -449,7 +676,10 @@ def p_mult(p):
 # Parametros (se dan en forma de una lista)
 def p_parametros(p):
     '''parametros : expresion
-                             | parametros COMA expresion'''
+                  | parametros COMA expresion
+                  | valor
+                  | parametros COMA valor
+    '''
 
     # Si es solo una expresion
     if len(p) == 2:
@@ -473,10 +703,19 @@ def p_run(p):
 
 # Definición de Repeat
 def p_repeat(p):
-   """ funcionreservada : REPEAT valor CORCHETEIZQ ordenes CORCHETEDER PYC
+   """ funcioniter : REPEAT valor CORCHETEIZQ ordenes CORCHETEDER PYC
    """
+   times = 0
+
+   if p[2] in variablesbool:
+         lista_errores.append("ERROR: No se puede repetir n veces con una entrada booleana {0} en la linea {1}".format(p[2], p.lineno(1)))
+
+   elif p[2] in variables:
    # Devuelve las ordenes a ejecutar repetidas N veces
-   p[0] = p[2] * p[4]
+      p[0] = variables[p[2]] * p[4]
+   else:
+   # Devuelve las ordenes a ejecutar repetidas N veces
+      p[0] = p[2] * p[4]
 
 
 # Definición de if
@@ -484,38 +723,56 @@ def p_if(p):
    """ funcionreservada : IF PARENTESISIZQ condicion PARENTESISDER CORCHETEIZQ ordenes CORCHETEDER PYC
    """
    # Si se cumple la condición, devuelve las ordenes a ejecutar
-   if p[3] == True:
-      p[0] = p[6]
-
+   p[0] = [p[1] , p[3] , p[6]]
 
 # Definición de ifelse
 def p_ifelse(p):
+
    """ funcionreservada : IFELSE PARENTESISIZQ condicion PARENTESISDER CORCHETEIZQ ordenes CORCHETEDER CORCHETEIZQ ordenes CORCHETEDER PYC
    """
    # Si se cumple la condición, devuelve las ordenes a ejecutar
-   if p[3] == True:
-      p[0] = p[6]
-   else:
-      p[0] = p[9]
+
+   p[0] = [p[1] , p[3] , p[6], p[9]]
+
+
+def p_if_iter(p):
+    """ if : IF PARENTESISIZQ condicionciclo PARENTESISDER CORCHETEIZQ ordenesiter CORCHETEDER PYC
+    """
+    # Si se cumple la condición, devuelve las ordenes a ejecutar
+    p[0] = [p[1], p[3], p[6]]
+
+
+# Definición de ifelse
+def p_ifelse_iter(p):
+    """ ifelse : IFELSE PARENTESISIZQ condicionciclo PARENTESISDER CORCHETEIZQ ordenesiter CORCHETEDER CORCHETEIZQ ordenesiter CORCHETEDER PYC
+    """
+    # Si se cumple la condición, devuelve las ordenes a ejecutar
+
+    p[0] = [p[1], p[3], p[6], p[9]]
 
 
 # Definición de until
 def p_until(p):
-   """ funcionreservada : UNTIL CORCHETEIZQ ordenes CORCHETEDER CORCHETEIZQ condicionciclo CORCHETEDER PYC
-                                          | UNTIL CORCHETEIZQ ordenes CORCHETEDER PARENTESISIZQ condicionciclo  PARENTESISDER PYC
+   """ funcioniter : UNTIL CORCHETEIZQ ordenesiter CORCHETEDER CORCHETEIZQ condicionciclo CORCHETEDER PYC
+                        | UNTIL CORCHETEIZQ ordenesiter CORCHETEDER PARENTESISIZQ condicionciclo  PARENTESISDER PYC
    """
    # Devuelve el par ordenado con la respectiva condicion
-   p[0] = ['UNTIL', p[3], p[6]]
+
+   p[0] = [p[1],p[3],p[6]]
+
 
 
 # Definición de while
 def p_while(p):
-   """ funcionreservada : WHILE  CORCHETEIZQ condicionciclo CORCHETEDER CORCHETEIZQ ordenes CORCHETEDER PYC
-                                          | WHILE PARENTESISIZQ condicionciclo PARENTESISDER CORCHETEIZQ ordenes CORCHETEDER PYC
+   """ funcioniter : WHILE  CORCHETEIZQ condicionciclo CORCHETEDER CORCHETEIZQ ordenes CORCHETEDER PYC
+                        | WHILE PARENTESISIZQ condicionciclo PARENTESISDER CORCHETEIZQ ordenes CORCHETEDER PYC
    """
    # Devuelve el par ordenado con la respectiva condicion
    p[0] = ['WHILE', p[3], p[6]]
 
+
+def actualizar(p):
+    print(p)
 
 # Condición que debe ser devuelta para evaluar en los ciclos UNTIL y WHILE
 def p_condicionciclo(p):
@@ -537,7 +794,7 @@ def p_condicionciclo(p):
    condicion.pop(0)
 
    # Devuelve la condición en forma de lista para evaluarla más fácil
-   p[0] = [condicion]
+   p[0] = condicion
 
 
 """ ORDENES """
@@ -545,8 +802,38 @@ def p_condicionciclo(p):
 # Ordenes (se dan en forma de una lista de listas)
 def p_ordenes(p):
     '''ordenes : continue
-                       | ordenes continue'''
+               | ordenes continue
+               | add
+               | ordenes add
+               | ordenes funcionreservada
+               | funcionreservada
+               | ordenes funcioniter
+               | funcioniter
+    '''
 
+    print(p[1])
+    if len(p) == 2:
+       p[0] = [p[1]]
+    else:
+       p[0] = p[1] + [p[2]]
+
+
+def p_ordenes_iter(p):
+    '''ordenesiter : continue
+                   | ordenesiter continue
+                   | add
+                   | ordenesiter add
+                   | ordenesiter ifelse
+                   | ifelse
+                   | ordenesiter if
+                   | if
+                   | ordenesiter operacion
+                   | operacion
+                   | ordenesiter put
+                   | put
+                   | ordenesiter funcioniter
+                   | funcioniter
+    '''
     if len(p) == 2:
        p[0] = [p[1]]
     else:
