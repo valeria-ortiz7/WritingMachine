@@ -170,15 +170,6 @@ public class IDLE extends JFrame {
         }
         String path = editor.nombreTxt().substring(editor.nombreTxt().lastIndexOf('/') + 1);
         this.setTitle("Writting Machine - " + path);
-
-
-
-        try{
-            compilerLog.refresh(eventlog.getTexto());
-        }
-        catch (Exception e){
-            JOptionPane.showMessageDialog(this,e.getMessage(),"IDLE",JOptionPane.ERROR_MESSAGE);
-        }
     }
 
     /**
@@ -186,6 +177,7 @@ public class IDLE extends JFrame {
      * de python para compilar el archivo actual
      */
     public void compilar(){
+        guardarTXT();
         // Se inicializa el proceso de compilacion
         try{
             compilerLog.refresh(eventlog.getTexto());
