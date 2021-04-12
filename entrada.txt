@@ -1,24 +1,23 @@
--- Comentario del programa
--- Prueba parser operaciones basicas
-3 * -4
-3 - 2     20+20
-2 * (3 - 4 *-1)
-2^2 
-
--- Otro comentario el programa
--- Prueba parser asignaciones y put
-Def i_a = 2;
+-- Hola
 Def iA@ = 7;
-Put i = 3*2;
-Put iA@ = 3 * 2;
+Def var_prueba = 999;
+Put iAaaaa = 555;
 
--- Prueba parser add
-Add [id23];
-Add [i_a 2];
-Add [i_a ixa@];
+PARA MAIN 
+Def i_aa = 9; 
+Add[i_aa];
+Def iA@ = 2; 
+Def iHHH@ = 7; 
+ContinueLeft 15;
+ContinueUp 15;
+Put iA@ = 555;
+Add[iA@];
+If (iA@>10) [ContinueLeft 5;];
+Put iA@ = 0;
+FIN
 
--- Prueba parser continueX
-ContinueUp 2;
-ContinueUp 2*3+5+4;
-ContinueUp i_a;
-ContinueLeft (9^2);
+Add[iA@];
+Add[i_aa];
+Add[iA@ var_prueba];
+
+
