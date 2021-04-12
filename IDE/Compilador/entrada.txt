@@ -1,7 +1,7 @@
-
+--Hello
 Def iA@ = 7;
 Def var_prueba = 999;
-Put iAaaaa = 555;
+
 
 PARA MAIN 
 Def i_aa = 9; 
@@ -17,7 +17,6 @@ Put iA@ = 0;
 FIN
 
 Add[iA@];
-Add[i_aa];
-Add[iA@ var_prueba];
+
 
 

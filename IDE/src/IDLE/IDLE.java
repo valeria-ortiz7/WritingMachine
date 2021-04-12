@@ -189,6 +189,8 @@ public class IDLE extends JFrame {
         }
         refreshLog();
 
+        //System.out.println(eventlog.getTexto().equals("")); Logica para el ejecutar
+
     }
 
     public void refreshLog(){
@@ -196,6 +198,7 @@ public class IDLE extends JFrame {
         try{
             eventlog = new Documento(dir + "/Compilador/error.txt");
             compilerLog.refresh(eventlog.getTexto());
+
         }
         catch (Exception e){
             JOptionPane.showMessageDialog(this,e.getMessage(),"IDLE",JOptionPane.ERROR_MESSAGE);
