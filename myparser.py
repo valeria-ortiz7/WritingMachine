@@ -11,7 +11,7 @@ import sys
 import random
 
 # Define el archivo del programa
-archivo_programa = "entrada.txt"
+archivo_programa = sys.argv[1]
 
 # Se importan los tokens creados en el otro archivo
 import lexer
