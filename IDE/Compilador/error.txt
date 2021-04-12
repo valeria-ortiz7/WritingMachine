@@ -1,0 +1,1 @@
+ERROR: El programa debe tener al menos un comentario

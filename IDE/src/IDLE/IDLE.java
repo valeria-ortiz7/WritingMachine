@@ -26,10 +26,13 @@ public class IDLE extends JFrame {
     private TextEditor textEditor;
     private CompilerLog compilerLog;
 
+
     // Definicion del objeto editor que maneja el txt
     private Editor editor;
 
     private Documento eventlog;
+
+    private String dir = System.getProperty("user.dir");
 
     /**
      * Main que crea el JFrame y sus componentes graficos
@@ -75,8 +78,6 @@ public class IDLE extends JFrame {
         contentPane.add(compilerLog, BorderLayout.SOUTH);
 
         this.setTitle("Writting Machine - Documento sin guardar");
-
-        eventlog = new Documento("/home/andreyzarttys/Documentos/TEC/VII_Semestre/Compi/WritingMachine/IDE/errorLog.txt");
     }
 
     /**
@@ -180,17 +181,21 @@ public class IDLE extends JFrame {
         guardarTXT();
         // Se inicializa el proceso de compilacion
         try{
-            compilerLog.refresh(eventlog.getTexto());
-            Process process = Runtime.getRuntime().exec("python3 /home/andreyzarttys/Documentos/TEC/VII_Semestre/Compi/WritingMachine/parser.py " + editor.nombreTxt());
+            Process process = Runtime.getRuntime().exec("python3 " + dir + "/Compilador/compilador.py "  + editor.nombreTxt());
+            process.waitFor();
         }
         catch (Exception e){
             JOptionPane.showMessageDialog(this,e.getMessage(),"IDLE",JOptionPane.ERROR_MESSAGE);
         }
+        refreshLog();
 
+    }
+
+    public void refreshLog(){
         // Se refresca con los resultados y se deja listo para la proxima compilacion
         try{
+            eventlog = new Documento(dir + "/Compilador/error.txt");
             compilerLog.refresh(eventlog.getTexto());
-            eventlog.guardar("Iniciando el proceso de compilacion...");
         }
         catch (Exception e){
             JOptionPane.showMessageDialog(this,e.getMessage(),"IDLE",JOptionPane.ERROR_MESSAGE);

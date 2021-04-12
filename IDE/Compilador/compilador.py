@@ -8,6 +8,7 @@ from myparser import variables_globales
 from myparser import variables
 from myparser import lista_errores
 import pprint
+import os
 
 """
 
@@ -23,6 +24,8 @@ Para correr el programa:
 
 # Define las instrucciones que serán evaluadas
 instrucciones = []
+directorio = os.getcwd() + "/Compilador/error.txt"
+print(os.getcwd())
 
 # Elimina las ordenes vacías del main
 for ordenes in codigo_main:
@@ -90,6 +93,6 @@ if len(lista_errores) != 0:
    instrucciones = codigo_main
 
 # Escribe los errores encontrados en la lista de errores
-with open("error.txt", "w+") as archivo_resultado:
+with open(directorio, "w+") as archivo_resultado:
    for i in lista_errores:
       archivo_resultado.write(i + '\n')
