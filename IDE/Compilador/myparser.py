@@ -40,6 +40,9 @@ variables = {}
 # Lista de variables globales almacenadas. Guardará las variables creadas en el diccionario como {ID : valor}
 variables_globales = {}
 
+# Lista de vaiables booleanas. Utilizada para verificar el tipo de variable de entrada
+variablesbool = {}
+
 # Lista de funciones almacenadas del programa
 funciones = {} 
 
@@ -88,16 +91,35 @@ def p_sentencias(p):
 def p_sentencia_expr(p):
    ''' sentencia : expresion
                            | add
+                           | put
                            | continue
+                           | pos
                            | operacion
                            | condicion
                            | operadorlogico
                            | comentario
                            | funcionreservada
                            | funcion
+                           | funcioniter
+                           | speed
+                           | begin
+                           | usecolor
+                           | write
                         
    '''
-   p[0] = p[1]
+
+   if isinstance(p[1],list):
+       if p[1][0] == "Until":
+           p[0] = until_exe(p[1])
+       elif p[1][0] == "While":
+           p[0] = while_exe(p[1])
+       elif p[1][0] == "Repeat":
+           p[0] = repeat_exe(p[1])
+       else:
+           p[0] = p[1]
+   else:
+       p[0] = p[1]
+
         
 
 #################### SENTENCIAS ####################
@@ -105,6 +127,8 @@ def p_sentencia_expr(p):
 # Definición de asignación
 def p_asignacion_global(p):
    ''' sentencia : DEF ID IGUAL valor PYC
+                 | DEF ID IGUAL TRUE PYC
+                 | DEF ID IGUAL FALSE PYC
    '''
    #Verifica que la asignación de la variable cumpla con el tamaño
    if len(p[2]) >= 3 and len(p[2])<= 10:
@@ -121,7 +145,7 @@ def p_asignacion_global(p):
 
 # PUT: Le cambia el valor a una variable ya existente
 def p_sentencia_cambio(p):
-   ''' sentencia : PUT ID IGUAL valor PYC
+   ''' put : PUT ID IGUAL valor PYC
                            | PUT ID IGUAL expresion PYC
    '''
    # Revisa si existe y si existe le asigna el valor
@@ -129,7 +153,7 @@ def p_sentencia_cambio(p):
 
    # Si existe
    if variable is not False:
-      p[0] = [p[1], p[2], p[4]]
+      p[0] = [p[1], p[2], value(p[4])]
 
    # Si no existe, da error de variable indefinida
    else:
@@ -149,24 +173,27 @@ def p_add(p):
 
    # Si solo se evalúa el primer identificador y el identificador existe
    if len(p) == 6 and variable is not False:
-      p[0] = [p[1], p[3], variable + 1]
+      p[0] = [p[1], p[3], 1]
 
    # Si se evalúan dos identificadores y el primero existe
    elif len(p) == 7:
       # Revisa si existe la variable 2
-      variable2 = revisar_variable(p[4])
+      if isinstance(p[4],int):
+         p[0] = [p[1],p[3],p[4]]
+      else:
+         variable2 = revisar_variable(p[4])
 
       # Si existe, devuelve el add
-      if variable2 is not False:
-         p[0] = [p[1], p[3], p[4], variable + variable2]
+         if variable2 is not False:
+            p[0] = [p[1], p[3], variable2 ,p[4]]
 
       # Si no existe la variable 2 pero si la 1
-      if variable2 is False:
-         lista_errores.append("ERROR: No se incrementar el valor del identificador '{0}' indefinido en la linea {1}".format(p[4], p.lineno(4)))
+         if variable2 is False:
+            lista_errores.append("ERROR: No se incrementar el valor del identificador '{0}' indefinido en la linea {1}".format(p[4], p.lineno(4)))
 
       # Si no existe la variable 2 pero si la 1
-      if variable is False:
-         lista_errores.append("ERROR: No se incrementar el valor del identificador '{0}' indefinido en la linea {1}".format(p[3], p.lineno(3)))
+         if variable is False:
+            lista_errores.append("ERROR: No se incrementar el valor del identificador '{0}' indefinido en la linea {1}".format(p[3], p.lineno(3)))
 
    # Si no existe la variable 1
    else:
@@ -210,6 +237,107 @@ def p_continue(p):
       else:
          lista_errores.append("ERROR: No se puede mover n cantidades con el identificador indefinido {0} en la linea".format(p[2], p.lineno(2)))
    
+
+# Definicion de Pos
+def p_pos(p):
+   ''' pos : POS CORCHETEIZQ expresion COMA expresion CORCHETEDER PYC
+           | POS CORCHETEIZQ valor COMA valor CORCHETEDER PYC
+           | POS CORCHETEIZQ valor COMA expresion CORCHETEDER PYC
+           | POS CORCHETEIZQ expresion COMA valor CORCHETEDER PYC
+           | POSX expresion PYC
+           | POSX valor PYC
+           | POSY expresion PYC
+           | POSY valor PYC
+   '''
+   # Si es Pos[]
+   if len(p) == 8:
+      if isinstance(p[3], int) and isinstance(p[5], int):
+         p[0] = [p[1], p[3], p[5]]
+      else:
+         if isinstance(p[3],int):
+            variable = revisar_variable(p[5])
+            if variable is not False:
+               p[0] = [p[1],p[3],variable]
+            else:
+               lista_errores.append("ERROR: No se puede cambiar la posicion con el identificador indefinido {0} en la linea".format(p[5], p.lineno(5)))
+         elif isinstance(p[5],int):
+            variable = revisar_variable(p[3])
+            if variable is not False:
+               p[0] = [p[1],variable,p[5]]
+            else:
+               lista_errores.append("ERROR: No se puede cambiar la posicion con el identificador indefinido {0} en la linea".format(p[3], p.lineno(3)))
+         else:
+            variable = revisar_variable(p[3])
+            variable1 = revisar_variable(p[5])
+
+            if variable is False:
+               lista_errores.append("ERROR: No se puede cambiar la posicion con el identificador indefinido {0} en la linea".format(p[3], p.lineno(3)))
+            if variable1 is False:
+               lista_errores.append("ERROR: No se puede cambiar la posicion con el identificador indefinido {0} en la linea".format(p[5], p.lineno(5)))
+            else:
+               p[0] = [p[1],variable,variable1]
+   # Si es PosX/PosY
+   if len(p) == 4:
+      if (isinstance(p[2], int)):
+         p[0] = [p[1], p[2]]
+      else:
+         variable = revisar_variable(p[2])
+         if variable is not False:
+            p[0] = [p[1],variable]
+         else:
+            lista_errores.append("ERROR: No se puede cambiar la posicion con el identificador indefinido {0} en la linea".format(p[2], p.lineno(2)))
+
+
+# Definicion de Write
+def p_write(p):
+   '''write : DOWN PYC
+                | UP PYC
+   '''
+   p[0] = p[1]
+
+# Definicion de UseColor
+def p_usecolor(p):
+   '''usecolor : USECOLOR valor PYC
+                | USECOLOR expresion PYC
+   '''
+   if isinstance(p[2], int):
+      if 1 <= p[2] <= 3:
+         p[0] = [p[1] , p[2]]
+      else:
+         lista_errores.append("ERROR: Los valores aceptados para UseColor son 1,2,3 en la linea {1}".format(p[2], p.lineno(2)))
+
+   else:
+      variable = revisar_variable(p[2])
+      if variable is not False:
+         if 1 <= variable <= 3:
+            p[0] = [p[1],variable]
+         else:
+            lista_errores.append("ERROR: Los valores aceptados para UseColor son 1,2,3 en la linea {1}".format(p[2], p.lineno(2)))
+      else:
+         lista_errores.append("ERROR: No se puede cambiar la posicion con el identificador indefinido  {0} en la linea {1}".format(p[2], p.lineno(2)))
+
+
+#################### Funciones de control de la maquina ####################
+# Definicion de Begin
+def p_begin(p):
+   '''begin : BEGIN PYC
+   '''
+   p[0] = p[1]
+
+# Definicion de Speed
+def p_speed(p):
+   '''speed : SPEED expresion PYC
+                | SPEED valor PYC
+   '''
+   if isinstance(p[2], int):
+      p[0] = [p[1], p[2]]
+   else:
+      variable = revisar_variable(p[2])
+      if variable is not False:
+         p[0] = [p[1], variable]
+      else:
+         lista_errores.append("ERROR: No se puede cambiar la velocidad con el identificador indefinido  {0}".format(p[2]), p.lineno(2))
+
 
 #################### Operaciones matemáticas básicas ####################
 
@@ -518,12 +646,6 @@ def p_run(p):
    p[0] = p[3]
 
 
-# Definición de Repeat
-def p_repeat(p):
-   """ funcionreservada : REPEAT valor CORCHETEIZQ ordenes CORCHETEDER PYC
-   """
-   # Devuelve las ordenes a ejecutar repetidas N veces
-   p[0] = p[2] * p[4]
 
 
 #################### EVALUACIONES #################### 
@@ -552,20 +674,29 @@ def p_ifelse(p):
 
 # Definición de until
 def p_until(p):
-   """ funcionreservada : UNTIL CORCHETEIZQ ordenes CORCHETEDER CORCHETEIZQ condicionciclo CORCHETEDER PYC
-                                          | UNTIL CORCHETEIZQ ordenes CORCHETEDER PARENTESISIZQ condicionciclo  PARENTESISDER PYC
+   """ funcioniter : UNTIL CORCHETEIZQ ordenesiter CORCHETEDER CORCHETEIZQ condicionciclo CORCHETEDER PYC
+                    | UNTIL CORCHETEIZQ ordenesiter CORCHETEDER PARENTESISIZQ condicionciclo  PARENTESISDER PYC
    """
-   # Devuelve el par ordenado con la respectiva condicion
-   p[0] = ['UNTIL', p[3], p[6]]
+   # Retorna la informacion necesaria para su evaluacion
+   p[0] = [p[1],p[3],p[6]]
 
 
 # Definición de while
 def p_while(p):
-   """ funcionreservada : WHILE  CORCHETEIZQ condicionciclo CORCHETEDER CORCHETEIZQ ordenes CORCHETEDER PYC
-                                          | WHILE PARENTESISIZQ condicionciclo PARENTESISDER CORCHETEIZQ ordenes CORCHETEDER PYC
+   """ funcioniter : WHILE  CORCHETEIZQ condicionciclo CORCHETEDER CORCHETEIZQ ordenesiter CORCHETEDER PYC
+                   | WHILE PARENTESISIZQ condicionciclo PARENTESISDER CORCHETEIZQ ordenesiter CORCHETEDER PYC
    """
-   # Devuelve el par ordenado con la respectiva condicion
-   p[0] = ['WHILE', p[3], p[6]]
+   # Retorna la informacion necesaria para su evaluacion
+   p[0] = [p[1], p[6], p[3]]
+
+
+
+# Definición de Repeat
+def p_repeat(p):
+   """ funcionniter : REPEAT valor CORCHETEIZQ ordenesiter CORCHETEDER PYC
+   """
+   # Devuelve las ordenes a ejecutar y numero de veces que debe hacerlo
+   p[0] = [p[1] , p[4] , p[2]]
 
 
 # Condición que debe ser devuelta para evaluar en los ciclos UNTIL y WHILE
@@ -593,7 +724,236 @@ def p_condicionciclo(p):
 
    # Devuelve la condición en forma de lista para evaluarla más fácil
    p[0] = condicion
-           
+
+
+# Definicion de ordenes_iter. Necesaria para el uso de ordenes especificas en las iteraciones
+def p_ordenes_iter(p):
+   '''ordenesiter : continue
+                  | ordenesiter continue
+                  | add
+                  | ordenesiter add
+                  | ordenesiter ifelse
+                  | ifelse
+                  | ordenesiter if
+                  | if
+                  | ordenesiter operacion
+                  | operacion
+                  | ordenesiter put
+                  | put
+                  | ordenesiter funcioniter
+                  | funcioniter
+                  | pos
+                  | ordenesiter pos
+                  | speed
+                  | ordenesiter speed
+                  | write
+                  | ordenesiter write
+                  | begin
+                  | ordenesiter begin
+                  | usecolor
+                  | ordenesiter usecolor
+   '''
+   if len(p) == 2:
+      p[0] = [p[1]]
+   else:
+      p[0] = p[1] + [p[2]]
+
+# Definicion de if_iter. If especifico para las iteraciones
+def p_if_iter(p):
+   """ if : IF PARENTESISIZQ condicionciclo PARENTESISDER CORCHETEIZQ ordenesiter CORCHETEDER PYC
+   """
+   # Retorna la condicion y ordenes para su manejo en las iteraciones
+   p[0] = [p[1], p[3], p[6]]
+
+
+# Definicion de ifelse_iter. IfElse especifico para las iteraciones
+def p_ifelse_iter(p):
+   """ ifelse : IFELSE PARENTESISIZQ condicionciclo PARENTESISDER CORCHETEIZQ ordenesiter CORCHETEDER CORCHETEIZQ ordenesiter CORCHETEDER PYC
+   """
+   # Retorna la condicion y ordenes para su manejo en las iteraciones
+
+   p[0] = [p[1], p[3], p[6], p[9]]
+
+#################### EXE #####################
+#Definicion de Until_exe
+def until_exe(until):
+   #Recibe una lista con las ordenes de la iteracion y la condicion para repetir
+   # Revisa el tipo de condicion y luego hace un While con los valores de la condicion
+   # Llama a exe con las ordenes
+   # Crea y llena la lista con los resultados obtenidos de exe
+   recorrido = []
+   if until[2][1] == "<":
+      while value(until[2][0]) < value(until[2][2]):
+         for i in exe(until[1]):
+            recorrido.append(i)
+   elif until[2][1] == "<=":
+      while value(until[2][0]) <= value(until[2][2]):
+         for i in exe(until[1]):
+            recorrido.append(i)
+   elif until[2][1] == ">":
+      while value(until[2][0]) > value(until[2][2]):
+         for i in exe(until[1]):
+            recorrido.append(i)
+   elif until[2][1] == ">=":
+      while value(until[2][0]) >= value(until[2][2]):
+         for i in exe(until[1]):
+            recorrido.append(i)
+   elif until[2][1] == "=":
+      while value(until[2][0]) == value(until[2][2]):
+         for i in exe(until[1]):
+            recorrido.append(i)
+   if recorrido == []:
+      recorrido.append(exe(until[1]))
+
+   return recorrido
+
+
+def while_exe(while_):
+   #Recibe una lista con las ordenes de la iteracion y la condicion para repetir
+   # Revisa el tipo de condicion y luego hace un While con los valores de la condicion
+   # Llama a exe con las ordenes
+   # Crea y llena la lista con los resultados obtenidos de exe
+   recorrido = []
+   if while_[2][1] == "<":
+      while value(while_[2][0]) < value(while_[2][2]):
+         for i in exe(while_[1]):
+            recorrido.append(i)
+   elif while_[2][1] == "<=":
+      while value(while_[2][0]) <= value(while_[2][2]):
+         for i in exe(while_[1]):
+            recorrido.append(i)
+   elif while_[2][1] == ">":
+      while value(while_[2][0]) > value(while_[2][2]):
+         for i in exe(while_[1]):
+            recorrido.append(i)
+   elif while_[2][1] == ">=":
+      while value(while_[2][0]) >= value(while_[2][2]):
+         for i in exe(while_[1]):
+            recorrido.append(i)
+   elif while_[2][1] == "=":
+      while value(while_[2][0]) == value(while_[2][2]):
+         for i in exe(while_[1]):
+            recorrido.append(i)
+   if recorrido != []:
+      return recorrido
+
+
+def repeat_exe(repeat):
+   # Recibe las ordenes y el numero de veces a repetirlas
+   # Llama a exe con las ordenes
+   # Crea y llena la lista con los resultados obtenidos de exe
+   recorrido = []
+   cont = 0
+   while cont < value(repeat[2]):
+      for i in exe(repeat[1]):
+         recorrido.append(i)
+      cont = cont + 1
+
+   return recorrido
+
+
+def if_exe(if_):
+   # Recibe y analisa la condicion del If
+   # Llama a exe con las ordenes del If
+   # Crea la lista con los resultados de exe
+   recorrido = []
+   if if_[1][1] == "<":
+      if value(if_[1][0]) < value(if_[1][2]):
+         for i in exe(if_[2]):
+            recorrido.append(i)
+   elif if_[1][1] == "<=":
+      if value(if_[1][0]) <= value(if_[1][2]):
+         for i in exe(if_[2]):
+            recorrido.append(i)
+   elif if_[1][1] == ">":
+      if value(if_[1][0]) > value(if_[1][2]):
+         for i in exe(if_[2]):
+            recorrido.append(i)
+   elif if_[1][1] == ">=":
+      if value(if_[1][0]) >= value(if_[1][2]):
+         for i in exe(if_[2]):
+            recorrido.append(i)
+   elif if_[1][1] == "=":
+      if value(if_[1][0]) == value(if_[1][2]):
+         for i in exe(if_[2]):
+            recorrido.append(i)
+   if recorrido != []:
+      return recorrido
+
+
+def ifelse_exe(ifelse):
+   # Recibe y analisa la condicion del IfElse
+   # Llama a exe con las ordenes del IfElse
+   # Crea la lista con los resultados de exe
+   recorrido = []
+   if ifelse[1][1] == "<":
+      if value(ifelse[1][0]) < value(ifelse[1][2]):
+         for i in exe(ifelse[2]):
+            recorrido.append(i)
+      else:
+         for i in exe(ifelse[3]):
+            recorrido.append(i)
+   elif ifelse[1][1] == "<=":
+      if value(ifelse[1][0]) <= value(ifelse[1][2]):
+         for i in exe(ifelse[2]):
+            recorrido.append(i)
+      else:
+         for i in exe(ifelse[3]):
+            recorrido.append(i)
+   elif ifelse[1][1] == ">=":
+      if value(ifelse[1][0]) >= value(ifelse[1][2]):
+         for i in exe(ifelse[2]):
+            recorrido.append(i)
+      else:
+         for i in exe(ifelse[3]):
+            recorrido.append(i)
+   elif ifelse[1][1] == ">":
+      if value(ifelse[1][0]) > value(ifelse[1][2]):
+         for i in exe(ifelse[2]):
+            recorrido.append(i)
+      else:
+         for i in exe(ifelse[3]):
+            recorrido.append(i)
+   elif ifelse[1][1] == "=":
+      if value(ifelse[1][0]) == value(ifelse[1][2]):
+         for i in exe(ifelse[2]):
+            recorrido.append(i)
+      else:
+         for i in exe(ifelse[3]):
+            recorrido.append(i)
+   return recorrido
+
+
+def exe(listtoexe):
+   # Recibe una lista de ordenes
+   # Analisa el tipo de ordenes en la lista
+   # Crea una lista con los resultados de las ordenes
+   recorrido = []
+   for i in listtoexe:
+      if isinstance(i, list):
+         if i[0] == "Add":
+            if i[1] in variables_globales:
+               variables_globales[i[1]] = variables_globales[i[1]] + i[2]
+            else:
+               variables[i[1]] = variables[i[1]] + i[2]
+         elif i[0] == "Put":
+            variables[i[1]] = i[2]
+         elif i[0] == "If":
+            recorrido.append(if_exe(i))
+         elif i[0] == "IfElse":
+            recorrido.append(ifelse_exe(i))
+         elif i[0] == "Until":
+            recorrido.append(until_exe(i))
+         elif i[0] == "While":
+            recorrido.append(while_exe(i))
+         elif i[0] == "Repeat":
+            recorrido.append(repeat_exe(i))
+         else:
+            recorrido.append(i)
+      else:
+         recorrido.append(i)
+   return recorrido
+
 
 #################### PROCEDIMIENTOS ####################
 
@@ -637,13 +997,19 @@ def p_funciones(p):
 # Ordenes (se dan en forma de una lista de listas)
 def p_ordenes(p):
     '''ordenes : continue
-                       | funcionreservada
-                       | add
-                       | sentencia
-                       | ordenes add
-                       | ordenes sentencia
-                       | ordenes funcionreservada
-                       | ordenes continue
+               | funcionreservada
+               | add
+               | pos
+               | put
+               | sentencia
+               | funcioniter
+               | ordenes add
+               | ordenes sentencia
+               | ordenes funcionreservada
+               | ordenes continue
+               | ordenes funcioniter
+               | ordenes put
+               | ordenes pos
    '''
     # Revisa si hay alguna asignación de variable
     for i in p:
@@ -665,19 +1031,33 @@ def p_ordenes(p):
 # Ordenes (se dan en forma de una lista de listas)
 def p_ordenesmain(p):
     '''ordenesmain : sentencia
-                                | continue
-                                | condicion
-                                | operadorlogico
-                                | operacion
-                                | funcionreservada
-                                | funcion
-                                | ordenesmain sentencia
-                                | ordenesmain continue
-                                | ordenesmain condicion
-                                | ordenesmain operadorlogico
-                                | ordenesmain operacion
-                                | ordenesmain funcionreservada
-                                | ordenesmain funcion
+                   | funcioniter
+                   | pos
+                   | put
+                   | continue
+                   | condicion
+                   | operadorlogico
+                   | operacion
+                   | funcionreservada
+                   | funcion
+                   | speed
+                   | write
+                   | begin
+                   | usecolor
+                   | ordenesmain sentencia
+                   | ordenesmain continue
+                   | ordenesmain condicion
+                   | ordenesmain operadorlogico
+                   | ordenesmain operacion
+                   | ordenesmain funcionreservada
+                   | ordenesmain funcion
+                   | ordenesmain funcioniter
+                   | ordenesmain pos
+                   | ordenesmain put
+                   | ordenesmain speed
+                   | ordenesmain write
+                   | ordenesmain begin
+                   | ordenesmain usecolor
                                 
    '''
    # Revisa si hay alguna asignación de variable
@@ -751,7 +1131,17 @@ def revisar_variable(a):
    if var_local == True:
       return variables[a]
 
-   
+
+# Definicion de value
+def value(x):
+   # Retorna el valor de una entrada valida
+   if x in variables:
+      return variables[x]
+   elif x in variables_globales:
+      return variables_globales[x]
+   else:
+      return x
+
 #################### Resultado del parser ####################
 print("\n--------- Resultados del parser ---------")
 

@@ -5,15 +5,12 @@ Def var_prueba = 999;
 
 PARA MAIN 
 Def i_aa = 9; 
-Add[i_aa];
-Def iA@ = 2; 
-Def iHHH@ = 7; 
-ContinueLeft 15;
-ContinueUp 15;
-Put iA@ = 555;
-Add[iA@];
-If (iA@>10) [ContinueLeft 5;];
-Put iA@ = 0;
+Def sds = 5;
+Speed 6;
+Add[sds];
+While [sds < 10] [IfElse (sds = 7) [UseColor 6;] [IfElse (sds < 7)[ContinueUp 9;][ContinueUp 1;];]; Add[sds 2];];
+
+
 FIN
 
 Add[iA@];
