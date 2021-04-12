@@ -116,32 +116,139 @@ def p_sentencia_expr(p):
    if isinstance(p[1],list):
        if p[1][0] == "Until":
            p[0] = until_exe(p[1])
+       elif p[1][0] == "While":
+           p[0] = while_exe(p[1])
+       elif p[1][0] == "Repeat":
+           p[0] = repeat_exe(p[1])
    else:
        p[0] = p[1]
         
 def until_exe(until):
     recorrido = []
-    while value(until[2][0]) < value(until[2][2]):
-        for i in exe(until[1]):
-            recorrido.append(i)
+    if until[2][1] == "<":
+        while value(until[2][0]) < value(until[2][2]):
+            for i in exe(until[1]):
+                recorrido.append(i)
+    elif until[2][1] == "<=":
+        while value(until[2][0]) <= value(until[2][2]):
+            for i in exe(until[1]):
+                recorrido.append(i)
+    elif until[2][1] == ">":
+        while value(until[2][0]) > value(until[2][2]):
+            for i in exe(until[1]):
+                recorrido.append(i)
+    elif until[2][1] == ">=":
+        while value(until[2][0]) >= value(until[2][2]):
+            for i in exe(until[1]):
+                recorrido.append(i)
+    elif until[2][1] == "=":
+        while value(until[2][0]) == value(until[2][2]):
+            for i in exe(until[1]):
+                recorrido.append(i)
+    if recorrido == []:
+        recorrido.append(exe(until[1]))
 
+    return recorrido
+
+def while_exe(while_):
+    recorrido = []
+    if while_[2][1] == "<":
+        while value(while_[2][0]) < value(while_[2][2]):
+            for i in exe(while_[1]):
+                recorrido.append(i)
+    elif while_[2][1] == "<=":
+        while value(while_[2][0]) <= value(while_[2][2]):
+            for i in exe(while_[1]):
+                recorrido.append(i)
+    elif while_[2][1] == ">":
+        while value(while_[2][0]) > value(while_[2][2]):
+            for i in exe(while_[1]):
+                recorrido.append(i)
+    elif while_[2][1] == ">=":
+        while value(while_[2][0]) >= value(while_[2][2]):
+            for i in exe(while_[1]):
+                recorrido.append(i)
+    elif while_[2][1] == "=":
+        while value(while_[2][0]) == value(while_[2][2]):
+            for i in exe(while_[1]):
+                recorrido.append(i)
+    if recorrido != []:
+        return recorrido
+
+def repeat_exe(repeat):
+    recorrido = []
+    cont = 0
+    while cont < repeat[2]:
+        for i in exe(repeat[1]):
+            recorrido.append(i)
+        cont = cont + 1
+        
     return recorrido
 
 def if_exe(if_):
     recorrido = []
-    if value(if_[1][0])  < value(if_[1][2]):
-        for i in exe(if_[2]):
-            recorrido.append(i)
+    if if_[1][1] == "<":
+        if value(if_[1][0])  < value(if_[1][2]):
+            for i in exe(if_[2]):
+                recorrido.append(i)
+    elif if_[1][1] == "<=":
+        if value(if_[1][0])  <= value(if_[1][2]):
+            for i in exe(if_[2]):
+                recorrido.append(i)
+    elif if_[1][1] == ">":
+        if value(if_[1][0])  > value(if_[1][2]):
+            for i in exe(if_[2]):
+                recorrido.append(i)
+    elif if_[1][1] == ">=":
+        if value(if_[1][0])  >= value(if_[1][2]):
+            for i in exe(if_[2]):
+                recorrido.append(i)
+    elif if_[1][1] == "=":
+        if value(if_[1][0])  == value(if_[1][2]):
+            for i in exe(if_[2]):
+                recorrido.append(i)
+    if recorrido != []:
         return recorrido
+
+
 
 def ifelse_exe(ifelse):
     recorrido = []
-    if value(ifelse[1][0]) < value(ifelse[1][2]):
-        for i in exe(ifelse[2]):
-            recorrido.append(i)
-    else:
-        for i in exe(ifelse[3]):
-            recorrido.append(i)
+    if ifelse[1][1] == "<":
+        if value(ifelse[1][0]) < value(ifelse[1][2]):
+            for i in exe(ifelse[2]):
+                recorrido.append(i)
+        else:
+            for i in exe(ifelse[3]):
+                recorrido.append(i)
+    elif ifelse[1][1] == "<=":
+        if value(ifelse[1][0]) <= value(ifelse[1][2]):
+            for i in exe(ifelse[2]):
+                recorrido.append(i)
+        else:
+            for i in exe(ifelse[3]):
+                recorrido.append(i)
+    elif ifelse[1][1] == ">=":
+        if value(ifelse[1][0]) >= value(ifelse[1][2]):
+            for i in exe(ifelse[2]):
+                recorrido.append(i)
+        else:
+            for i in exe(ifelse[3]):
+                recorrido.append(i)
+    elif ifelse[1][1] == ">":
+        if value(ifelse[1][0]) > value(ifelse[1][2]):
+            for i in exe(ifelse[2]):
+                recorrido.append(i)
+        else:
+            for i in exe(ifelse[3]):
+                recorrido.append(i)
+    elif ifelse[1][1] == "=":
+        if value(ifelse[1][0]) == value(ifelse[1][2]):
+            for i in exe(ifelse[2]):
+                recorrido.append(i)
+        else:
+            for i in exe(ifelse[3]):
+                recorrido.append(i)
     return recorrido
 
 def exe(listtoexe):
@@ -158,6 +265,10 @@ def exe(listtoexe):
                 recorrido.append(ifelse_exe(i))
             elif i[0] == "Until":
                 recorrido.append(until_exe(i))
+            elif i[0] == "While":
+                recorrido.append(while_exe(i))
+            elif i[0] == "Repeat":
+                recorrido.append(repeat_exe(i))
             else:
                 recorrido.append(i)
         else:
@@ -703,7 +814,7 @@ def p_run(p):
 
 # Definición de Repeat
 def p_repeat(p):
-   """ funcioniter : REPEAT valor CORCHETEIZQ ordenes CORCHETEDER PYC
+   """ funcioniter : REPEAT valor CORCHETEIZQ ordenesiter CORCHETEDER PYC
    """
    times = 0
 
@@ -712,10 +823,10 @@ def p_repeat(p):
 
    elif p[2] in variables:
    # Devuelve las ordenes a ejecutar repetidas N veces
-      p[0] = variables[p[2]] * p[4]
+      p[0] = [p[1] , p[4] , variables[p[2]]]
    else:
    # Devuelve las ordenes a ejecutar repetidas N veces
-      p[0] = p[2] * p[4]
+      p[0] = [p[1] , p[4] , p[2]]
 
 
 # Definición de if
@@ -764,11 +875,11 @@ def p_until(p):
 
 # Definición de while
 def p_while(p):
-   """ funcioniter : WHILE  CORCHETEIZQ condicionciclo CORCHETEDER CORCHETEIZQ ordenes CORCHETEDER PYC
-                        | WHILE PARENTESISIZQ condicionciclo PARENTESISDER CORCHETEIZQ ordenes CORCHETEDER PYC
+   """ funcioniter : WHILE  CORCHETEIZQ condicionciclo CORCHETEDER CORCHETEIZQ ordenesiter CORCHETEDER PYC
+                   | WHILE PARENTESISIZQ condicionciclo PARENTESISDER CORCHETEIZQ ordenesiter CORCHETEDER PYC
    """
    # Devuelve el par ordenado con la respectiva condicion
-   p[0] = ['WHILE', p[3], p[6]]
+   p[0] = [p[1], p[6], p[3]]
 
 
 def actualizar(p):

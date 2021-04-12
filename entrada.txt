@@ -1,11 +1,13 @@
 
 -- Hola
 
-Def sds = 1;
+Def sds = 5;
 Def sas = 1;
 
 
 
 
 
-Until [Until [ContinueLeft 10; Add [sas];] [sas <3];ContinueUp 4;  Add [sds];] [sds <4];
+While [sds > 9] [IfElse (sds = 7) [ContinueUp 7;] [IfElse (sds < 7)[ContinueUp 9;][ContinueUp 1;];]; Add[sds];];
+
+Repeat 4 [ContinueUp 3;];
