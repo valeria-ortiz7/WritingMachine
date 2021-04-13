@@ -1,0 +1,2 @@
+ERROR: Los valores aceptados para UseColor son 1,2,3 en la linea 0
+ERROR: No se incrementar el valor del identificador 'iA@' indefinido en la linea 16

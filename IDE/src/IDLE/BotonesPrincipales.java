@@ -12,6 +12,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 public class BotonesPrincipales extends JPanel implements ActionListener {
 
@@ -20,12 +21,14 @@ public class BotonesPrincipales extends JPanel implements ActionListener {
     public static final String ABRIR = "ABRIR";
     public static final String GUARDAR = "GUARDAR";
     public static final String COMPILAR = "COMPILAR";
+    public static final String EJECUTAR = "EJECUTAR";
 
     // Definicion de los botones de interfaz
     private JButton buttonAbrir;
     private JButton buttonCrear;
     private JButton buttonGuardar;
     private JButton buttonCompilar;
+    private JButton buttonEjecutar;
 
     // Inclusion del JFrame, debido a ser componentes activos en el
     private IDLE ventanaPrincipal;
@@ -64,6 +67,11 @@ public class BotonesPrincipales extends JPanel implements ActionListener {
         buttonCompilar.setActionCommand(COMPILAR);
         buttonCompilar.addActionListener(this);
         add(buttonCompilar);
+
+        buttonEjecutar = new JButton("Ejecutar");
+        buttonEjecutar.setActionCommand(EJECUTAR);
+        buttonEjecutar.addActionListener(this);
+        add(buttonEjecutar);
     }
 
 
@@ -84,6 +92,10 @@ public class BotonesPrincipales extends JPanel implements ActionListener {
         }
         else if(actionEvent.getActionCommand().equals(COMPILAR)){
             ventanaPrincipal.compilar();
+
+        }
+        else if(actionEvent.getActionCommand().equals(EJECUTAR)){
+            ventanaPrincipal.ejecutar();
         }
     }
 }

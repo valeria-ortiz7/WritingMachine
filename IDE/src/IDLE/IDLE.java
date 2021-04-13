@@ -15,6 +15,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 
 public class IDLE extends JFrame {
 
@@ -78,6 +79,8 @@ public class IDLE extends JFrame {
         contentPane.add(compilerLog, BorderLayout.SOUTH);
 
         this.setTitle("Writting Machine - Documento sin guardar");
+        eventlog = new Documento(dir + "/Compilador/error.txt");
+
     }
 
     /**
@@ -181,27 +184,52 @@ public class IDLE extends JFrame {
         guardarTXT();
         // Se inicializa el proceso de compilacion
         try{
+            compilerLog.setTextColor(0);
+            compilerLog.refresh("Iniciando el proceso de compilacion...");
+            Thread.sleep(1000);
+
             Process process = Runtime.getRuntime().exec("python3 " + dir + "/Compilador/compilador.py "  + editor.nombreTxt());
             process.waitFor();
+            if(eventlog.getTexto().equals("")){
+                compilerLog.setTextColor(2);
+            }
+            else{
+                compilerLog.setTextColor(1);
+            }
+            compilerLog.refresh(eventlog.getTexto() + "\n" + "Compilacion finalizada");
+
         }
         catch (Exception e){
             JOptionPane.showMessageDialog(this,e.getMessage(),"IDLE",JOptionPane.ERROR_MESSAGE);
         }
-        refreshLog();
-
-        //System.out.println(eventlog.getTexto().equals("")); Logica para el ejecutar
-
     }
 
-    public void refreshLog(){
-        // Se refresca con los resultados y se deja listo para la proxima compilacion
+    /**
+     * Funcion que comunica el manejo de la informacion del txt con el compilador
+     * de python para compilar y ejecutar el archivo actual
+     */
+    public void ejecutar(){
+        guardarTXT();
+        // Se inicializa el proceso de compilacion
         try{
-            eventlog = new Documento(dir + "/Compilador/error.txt");
-            compilerLog.refresh(eventlog.getTexto());
+            compilerLog.setTextColor(0);
+            compilerLog.refresh("Iniciando el proceso de compilacion...");
+            Thread.sleep(1000);
+            
+            Process process = Runtime.getRuntime().exec("python3 " + dir + "/Compilador/ejecutar.py "  + editor.nombreTxt());
+            process.waitFor();
+            if(eventlog.getTexto().equals("")){
+                compilerLog.setTextColor(2);
+            }
+            else{
+                compilerLog.setTextColor(1);
+            }
+            compilerLog.refresh(eventlog.getTexto() + "\n" + "Compilacion finalizada");
 
         }
         catch (Exception e){
             JOptionPane.showMessageDialog(this,e.getMessage(),"IDLE",JOptionPane.ERROR_MESSAGE);
         }
     }
+
 }

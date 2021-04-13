@@ -40,7 +40,6 @@ public class CompilerLog extends JPanel{
         taLog.setEnabled(true);
         taLog.setEditable(false);
         taLog.setBackground(new Color(15, 15, 15));
-        taLog.setForeground(Color.WHITE);
         scrollpane.setViewportView(taLog);
 
     }
@@ -51,5 +50,18 @@ public class CompilerLog extends JPanel{
      */
     public void refresh(String texto){
         taLog.setText(texto);
+        taLog.update(taLog.getGraphics());
+    }
+
+    public void setTextColor(int color){
+        if(color == 0){
+            taLog.setForeground(Color.WHITE);
+        }
+        else if(color == 1){
+            taLog.setForeground(Color.RED);
+        }
+        else{
+            taLog.setForeground(Color.GREEN);
+        }
     }
 }
