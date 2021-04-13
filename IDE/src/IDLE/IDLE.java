@@ -190,6 +190,12 @@ public class IDLE extends JFrame {
 
             Process process = Runtime.getRuntime().exec("python3 " + dir + "/Compilador/compilador.py "  + editor.nombreTxt());
             process.waitFor();
+
+            /* Funcion para leer en el momento de ejecucion
+            while(!eventlog.getTexto().equals("end")){
+                compilerLog.refresh(eventlog.getTexto());
+            }*/
+
             if(eventlog.getTexto().equals("")){
                 compilerLog.setTextColor(2);
             }
@@ -215,7 +221,7 @@ public class IDLE extends JFrame {
             compilerLog.setTextColor(0);
             compilerLog.refresh("Iniciando el proceso de compilacion...");
             Thread.sleep(1000);
-            
+
             Process process = Runtime.getRuntime().exec("python3 " + dir + "/Compilador/ejecutar.py "  + editor.nombreTxt());
             process.waitFor();
             if(eventlog.getTexto().equals("")){
