@@ -1,0 +1,59 @@
+--Hello
+Def iweqA@ = 7;
+Def var_prueba = 999;
+ContinueUp 5;
+Def variable1 = True;
+ContinueUp sdas23;
+Put i_aa = 9;
+Put s = 7;
+Down;
+
+--- Errores
+-- Put 2*4 = 7
+-- Add 23;
+-- Pos 233;
+-- UseColor 40;
+-- Speed "hola";
+
+PARA 
+MAIN 
+[ContinueUp 5;
+ContinueDown 26;
+ContinueLeft 40;
+Def var23 = True;]
+FIN
+
+Repeat 4 [ContinueUp 5;];
+
+PARA funcion1 [x,y] 
+[
+Add[i3cs];
+Def varsds = True;
+] 
+FIN
+
+PARA funcion1 [x,y,z] 
+[
+Def variable = 32432;
+] 
+FIN
+
+PARA adams222 [x,y,z] 
+[
+Def variable = 32432;
+] 
+FIN
+
+PARA tercerfunc [a,b] 
+[
+Def variable = 32432;
+] 
+FIN
+
+PARA adams222 [a,b] 
+[
+Def variable = 32432;
+] 
+FIN
+
+funcion1 [1,2];
