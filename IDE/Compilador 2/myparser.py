@@ -158,7 +158,7 @@ def p_add(p):
                  | ADD CORCHETEIZQ ID INT CORCHETEDER PYC
    '''
    if len(p) == 6:
-      p[0] = [p[1], p[3]]
+      p[0] = [p[1], p[3], 1]
 
    elif len(p) == 7:
       p[0] = [p[1], p[3], p[4]]
@@ -586,6 +586,7 @@ def p_repeat(p):
 # Definición de if
 def p_if(p):
    ''' funcionreservada : IF PARENTESISIZQ condicion PARENTESISDER CORCHETEIZQ ordenes CORCHETEDER PYC
+                        | IF PARENTESISIZQ operadorlogico PARENTESISDER CORCHETEIZQ ordenes CORCHETEDER PYC
    '''
    p[0] = ['IF', p[3], p[6]]
 
@@ -593,6 +594,7 @@ def p_if(p):
 # Definición de ifelse
 def p_ifelse(p):
    ''' funcionreservada : IFELSE PARENTESISIZQ condicion PARENTESISDER CORCHETEIZQ ordenes CORCHETEDER CORCHETEIZQ ordenes CORCHETEDER PYC
+                        | IFELSE PARENTESISIZQ operadorlogico PARENTESISDER CORCHETEIZQ ordenes CORCHETEDER CORCHETEIZQ ordenes CORCHETEDER PYC
    '''
    # Si se cumple la condición, devuelve las ordenes a ejecutar
    p[0] = ['IFELSE', p[3], p[6], p[9]]
@@ -612,7 +614,9 @@ def p_funcionreservada_error(p):
 # Output: ['Until', ordenes, condicion]
 def p_until(p):
    ''' funcioniter : UNTIL CORCHETEIZQ ordenes CORCHETEDER CORCHETEIZQ condicion CORCHETEDER PYC
-                             | UNTIL CORCHETEIZQ ordenes CORCHETEDER PARENTESISIZQ condicion  PARENTESISDER PYC
+                   | UNTIL CORCHETEIZQ ordenes CORCHETEDER PARENTESISIZQ condicion  PARENTESISDER PYC
+                   | UNTIL CORCHETEIZQ ordenes CORCHETEDER CORCHETEIZQ operadorlogico CORCHETEDER PYC
+                   | UNTIL CORCHETEIZQ ordenes CORCHETEDER PARENTESISIZQ operadorlogico  PARENTESISDER PYC
    '''
    # Retorna la informacion necesaria para su evaluacion
    p[0] = [p[1], p[3], p[6]]
@@ -622,7 +626,9 @@ def p_until(p):
 # Output: ['Until', condicion, ordenes]
 def p_while(p):
    ''' funcioniter : WHILE  CORCHETEIZQ condicion CORCHETEDER CORCHETEIZQ ordenes CORCHETEDER PYC
-                               | WHILE PARENTESISIZQ condicion PARENTESISDER CORCHETEIZQ ordenes CORCHETEDER PYC
+                   | WHILE PARENTESISIZQ condicion PARENTESISDER CORCHETEIZQ ordenes CORCHETEDER PYC
+                   | WHILE  CORCHETEIZQ operadorlogico CORCHETEDER CORCHETEIZQ ordenes CORCHETEDER PYC
+                   | WHILE PARENTESISIZQ operadorlogico PARENTESISDER CORCHETEIZQ ordenes CORCHETEDER PYC
    '''
    # Retorna la informacion necesaria para su evaluacion
    p[0] = [p[1], p[6], p[3]]
@@ -630,7 +636,7 @@ def p_while(p):
 # Definición de errores de las funciones iterativas WHILE, UNTIL
 def p_funcionreservada_error(p):
    ''' funcionreservada : WHILE error PYC
-                                       | UNTIL error PYC
+                        | UNTIL error PYC
    '''
    lista_errores.append("ERROR: Error de sintaxis en la función {0} en la línea {1}".format(p[1], p.lineno(2)))
 
