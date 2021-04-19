@@ -17,10 +17,14 @@ Down;
 
 PARA 
 MAIN 
-[ContinueUp 5;
+[
+Def varbool = True;
+
 Def sds = 2;
+
 ContinueDown sds;
 PosX 4;
+IfElse (Greater(2,1);) [ContinueUp 3;][Speed 100;];
 Pos [6,sds];
 ContinueLeft 40;
 While (And(sds<5,2=2);) [ContinueUp 5;Add[sds];] ;

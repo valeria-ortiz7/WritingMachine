@@ -10,11 +10,7 @@ from myparser import resultado as AST
 # Generación de números aleatorios
 import random
 
-# Determinar el directorio actual
-import os
 
-# Define dónde se va a guardar el TXT de errores
-directorio = os.getcwd() + "/error.txt"
 
 # Flag para verificar si hay errores
 flag = True
@@ -60,7 +56,4 @@ if len(lista_errores) != 0:
 if AST != None:
    AST = list(filter(None, AST))
 
-# Escribe los errores encontrados en la lista de errores
-with open(directorio, "w+") as archivo_resultado:
-   for i in lista_errores:
-      archivo_resultado.write(i + '\n')
+

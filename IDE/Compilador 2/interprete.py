@@ -2,7 +2,15 @@ from compilador import flag
 from compilador import AST
 from compilador import funciones
 from compilador import lista_funciones
+from compilador import lista_errores
 
+
+
+# Determinar el directorio actual
+import os
+
+# Define dónde se va a guardar el TXT de errores
+directorio = os.getcwd() + "/error.txt"
 # Código que se va a ejecutar
 codigo_main = []
 
@@ -21,9 +29,7 @@ variablesbool = {}
 # Lista de funciones reservadas
 funcion_reservada = ["ContinueUp","ContinueDown","ContinueLeft","ContinueRight","Pos","PosX","PosY","Speed","UseColor"]
 
-# Si hay errores, no se ejecuta nada
-if not flag:
-   exit()
+
 # Variables Globales
 global tipo_variable, PilaFuncion, pilaVariables
 tipo_variable = "global"
@@ -121,7 +127,6 @@ def funcion_exe(funccall):
          if len(funccall[2]) == len(lista_funciones[i][0]):
             cont = 0
             for x in funccall[2]:
-               print(variables)
                variables[lista_funciones[i][0][cont]] = value(x)
                cont = cont + 1
             recorrido.append(exe(lista_funciones[i][1]))
@@ -137,18 +142,27 @@ def exe(listtoexe):
    # Analisa el tipo de ordenes en la lista
    # Crea una lista con los resultados de las ordenes
    recorrido = []
-   global tipo_variable,PilaFuncion,pilaVariables
+   global tipo_variable,PilaFuncion,pilaVariables,flag
    for i in listtoexe:
       if isinstance(i, list):
          if i[0] == "Add":
-            if i[1] in variables_globales:
-               variables_globales[i[1]] = variables_globales[i[1]] + i[2]
+            if analizador_semantico(i,tipo_variable) == False:
+               flag = False
             else:
-               variables[i[1]] = variables[i[1]] + i[2]
+               if i[1] in variables_globales:
+                  variables_globales[i[1]] = variables_globales[i[1]] + i[2]
+               elif i[1] in variables:
+                  variables[i[1]] = variables[i[1]] + i[2]
          elif i[0] == "DEF":
             asignar_variable(i,tipo_variable)
          elif i[0] == "Put":
-            variables[i[1]] = i[2]
+            if analizador_semantico(i,tipo_variable) == False:
+               flag = False
+            else:
+               if i[1] in variables_globales:
+                  variables_globales[i[1]] = i[2]
+               elif i[1] in variables:
+                  variables[i[1]] = i[2]
          elif i[0] == "IF":
             recorrido.append(if_exe(i))
          elif i[0] == "IFELSE":
@@ -158,7 +172,10 @@ def exe(listtoexe):
          elif i[0] == "While":
             recorrido.append(while_exe(i))
          elif i[0] == "Repeat":
-            recorrido.append(repeat_exe(i))
+            if analizador_semantico([i[0],i[1]],tipo_variable) == False:
+               flag = False
+            else:
+               recorrido.append(repeat_exe(i))
          elif i[0] == "funccall":
             tipo_variable = "local"
             recorrido.append(funcion_exe(i))
@@ -169,28 +186,50 @@ def exe(listtoexe):
             if i[0] in funcion_reservada:
                funcion = []
                if i[0] == "Pos" :
-                  funcion.append(i[0])
-                  funcion.append(value(i[1][0]))
-                  funcion.append(value(i[1][1]))
-                  recorrido.append(funcion)
+                  if analizador_semantico([i[0],i[1][0],i[1][1]],tipo_variable) == False:
+                     flag = False
+                  else:
+                     funcion.append(i[0])
+                     funcion.append(value(i[1][0]))
+                     funcion.append(value(i[1][1]))
+                     recorrido.append(funcion)
                else:
-                  funcion.append(i[0])
-                  funcion.append(value(i[1]))
-                  recorrido.append(funcion)
+                  if analizador_semantico([i[0],i[1]],tipo_variable) == False:
+                     flag = False
+                  else:
+                     funcion.append(i[0])
+                     funcion.append(value(i[1]))
+                     recorrido.append(funcion)
       else:
          recorrido.append(i)
    return recorrido
 
 def revisar_condicion(condicion):
+   global tipo_variable, flag
    if condicion[0] == "Smaller":
-      if value(condicion[1]) < value(condicion[2]):
-         return True
+      if analizador_semantico(["MayorMenor",condicion[1],condicion[2] ],tipo_variable) == False:
+         flag = False
+      if type(value(condicion[1])) == type(value(condicion[2])):
+         if value(condicion[1]) < value(condicion[2]):
+            return True
+      else:
+         return False
    elif condicion[0] == "Greater":
-      if value(condicion[1]) > value(condicion[2]):
-         return True
+      if analizador_semantico(["MayorMenor",condicion[1],condicion[2] ],tipo_variable) == False:
+         flag = False
+      if type(value(condicion[1])) == type(value(condicion[2])):
+         if value(condicion[1]) > value(condicion[2]):
+            return True
+      else:
+         return False
    elif condicion[0] == "Equal":
-      if value(condicion[1]) == value(condicion[2]):
-         return True
+      if analizador_semantico(["Iguales",condicion[1],condicion[2] ],tipo_variable) == False:
+         flag = False
+      if type(value(condicion[1])) == type(value(condicion[2])):
+         if value(condicion[1]) == value(condicion[2]):
+            return True
+      else:
+         return False
    elif condicion[0] == "Or":
       if revisar_condicion(condicion[1]) == True or revisar_condicion(condicion[2]) == True:
          return True
@@ -198,18 +237,28 @@ def revisar_condicion(condicion):
       if revisar_condicion(condicion[1]) == True and revisar_condicion(condicion[2]) == True:
          return True
    elif condicion[1] == "<":
+      if analizador_semantico(["MayorMenor",condicion[0],condicion[2] ],tipo_variable) == False:
+         flag = False
       if value(condicion[0]) < value(condicion[2]):
          return True
    elif condicion[1] == "<=":
+      if analizador_semantico(["MayorMenor",condicion[0],condicion[2] ],tipo_variable) == False:
+         flag = False
       if value(condicion[0]) <= value(condicion[2]):
          return True
    elif condicion[1] == ">":
+      if analizador_semantico(["MayorMenor",condicion[0],condicion[2] ],tipo_variable) == False:
+         flag = False
       if value(condicion[0]) > value(condicion[2]):
          return True
    elif condicion[1] == ">=":
+      if analizador_semantico(["MayorMenor",condicion[0],condicion[2] ],tipo_variable) == False:
+         flag = False
       if value(condicion[0]) >= value(condicion[2]):
          return True
    elif condicion[1] == "=":
+      if analizador_semantico(["Iguales",condicion[0],condicion[2] ],tipo_variable) == False:
+         flag = False
       if value(condicion[0]) == value(condicion[2]):
          return True
    else:
@@ -222,12 +271,104 @@ def value(x):
       return variables[x]
    elif x in variables_globales:
       return variables_globales[x]
+   elif x == "True":
+      return True
+   elif x == "False":
+      return False
    elif isinstance(x,int):
       return x
 
 
+def analizador_semantico(entrada, indicador):
+   bool_aceptado = {'ContinueUp': False,
+                    'ContinueLeft': False,
+                    'ContinueDown': False,
+                    'ContinueRight': False,
+                    'Add': False,
+                    'Put': True,
+                    'Pos': False,
+                    'PosX': False,
+                    'PosY': False,
+                    'Repeat': False,
+                    'Speed': False,
+                    'MayorMenor': False,
+                    'Iguales': True,
+                    }
 
+   flag = True
 
+   # Da la función actual (ContinueUp, Add, etc)
+   funcion = entrada[0]
+
+   # Por cada valor en la lista
+   for parametro in entrada:
+      # No toma en cuenta el primer valor
+      if parametro != funcion:
+         # Si es global
+         if indicador == "global":
+            if isinstance(parametro, int):
+               pass
+            elif parametro == "True" or parametro == "False":
+               if bool_aceptado[funcion] == False:
+                  lista_errores.append("ERROR: La función {0} no se puede operar con {1} ya que es un valor booleano".format(funcion,parametro))
+                  flag = False
+
+            elif parametro in variables_globales:
+               # Aquí, si existe, revisa el valor
+               if variables_globales[parametro] == "True" or variables_globales[parametro] == "False":
+                  # Si es un bool, revisa si la función lo acepta
+                  if bool_aceptado[funcion] == False:
+                     lista_errores.append("ERROR: La función {0} no se puede operar con {1} ya que es un valor booleano".format(funcion,parametro))
+                     flag = False
+
+            # Si la variable no existe en el scope global
+            else:
+               lista_errores.append("ERROR: La función {0} no se puede operar con el identificador indefinido {1}".format(funcion,parametro))
+               flag = False
+
+         # Si está en un scope local
+         if indicador == "local":
+            # Si es número, pasa
+            if isinstance(parametro, int):
+               pass
+
+            # Si existe en las globales
+            elif parametro in variables_globales:
+               # Aquí, si existe, revisa el valor
+               if variables_globales[parametro] == "True" or variables_globales[parametro] == "False":
+                  # Si es un bool, revisa si la función lo acepta
+                  if bool_aceptado[funcion] == False:
+                     lista_errores.append("ERROR: La función {0} no se puede operar con {1} ya que es un valor booleano".format(funcion,parametro))
+                     flag = False
+
+            # Si existe en las locales
+            elif parametro in variables:
+               # Aquí, si existe, revisa el valor
+               if variables[parametro] == "True" or variables[parametro] == "False":
+                  # Si es un bool, revisa si la función lo acepta
+                  if bool_aceptado[funcion] == False:
+                     lista_errores.append("ERROR: La función {0} no se puede operar con {1} ya que es un valor booleano".format(funcion,parametro))
+                     flag = False
+
+            # Si la variable no existe en ningún scope
+            else:
+               lista_errores.append("ERROR: La función {0} no se puede operar con el identificador indefinido {1}".format(funcion,parametro))
+               flag = False
+
+   return flag
+
+   ##################### Recorrido del main #####################
+   # Se recorre el código del AST
+for sentencia in AST:
+   if isinstance(sentencia, list):
+      # Si se encuentra el main
+      if sentencia[0] == 'MAIN':
+         # Almacena las ordenes del main por ejecutar
+         codigo_main.append(sentencia[1])
+
+   # Filtrar las ordenes para solo ejecutar ordenes validas (elimina producciones de None)
+codigo_main = list(filter(None, codigo_main[0]))
+instrucciones = exe(codigo_main)
 
 ##################### Ejecución del intérprete #####################
 
@@ -236,30 +377,21 @@ if flag:
    print("\n--------- Resultados del intérprete ---------\n")
    print("Código a interpretar:")
    print(AST)
-   # Se recorre el código del AST
-   for sentencia in AST:
-      if isinstance(sentencia, list):
-         # Si se encuentra el main
-         if sentencia[0] == 'MAIN':
-            # Almacena las ordenes del main por ejecutar
-            codigo_main.append(sentencia[1])
-
-   # Filtrar las ordenes para solo ejecutar ordenes validas (elimina producciones de None)
-   codigo_main = list(filter(None, codigo_main[0]))
-   print("\nCódigo a ejecutar del Main: \n",codigo_main)
-
-
-
+   print("\nCodigo para arduino:\n",instrucciones)
    # Imprime los procedimientos creados que encontró en el programa con los índices donde se encuentre un procedimiento con este nombre
    print("\nDiccionario de procedimientos creados: \n", funciones)
 
-   ##################### Recorrido del main #####################
 
-
-   print("\nEjucucion del codigo Main:\n",exe(codigo_main))
 
    ##################### Resultados #####################
    print("\nVariables globales almacenadas durante la ejecución:\n",variables_globales)
 
 
+# Escribe los errores encontrados en la lista de errores
+with open(directorio, "w+") as archivo_resultado:
+   for i in lista_errores:
+      archivo_resultado.write(i + '\n')
 
+# Si hay errores, no se ejecuta nada
+if not flag:
+   exit()
