@@ -63,7 +63,6 @@ PARA f3 [a,b]
 [ 
 Def ers = 5;
 ContinueUp a;
-f4 [7,8];
 ContinueUp a;
 ]
 FIN
@@ -72,6 +71,7 @@ PARA f4 [a,b]
 [ 
 Def epss = 0;
 ContinueUp a;
+PosX epss;
 ]
 FIN
 
@@ -85,6 +85,8 @@ ContinueLeft x;
 Speed y;
 While (Or(3>6,Smaller(y,16););) [IfElse (Equal(y,13);) [ContinueLeft y;][adams222[3,2,3]; Pos[x,i3cs];];Add[y];];
 Def pdsd = 7;
+ContinueDown y;
+f4[2,2];
 ContinueUp y; 
 ] 
 FIN
