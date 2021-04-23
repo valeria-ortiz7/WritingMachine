@@ -53,6 +53,10 @@ public class CompilerLog extends JPanel{
         taLog.update(taLog.getGraphics());
     }
 
+    /**
+     * Funcion para cambiar el color del texto en el editor
+     * @param color: Numero asociado a uno de los tres colores posibles
+     */
     public void setTextColor(int color){
         if(color == 0){
             taLog.setForeground(Color.WHITE);

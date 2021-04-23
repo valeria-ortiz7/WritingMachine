@@ -27,11 +27,11 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
 
     private final static int HEIGHT = Integer.MAX_VALUE - 1000000;
 
-    //  Text component this TextTextLineNumber component is in sync with
+    // Componente de texto con la que el componete TextTextLineNumber se sincroniza
 
     private JTextComponent component;
 
-    //  Properties that can be changed
+    //  Propiedades modificables
 
     private boolean updateFont;
     private int borderGap;
@@ -39,9 +39,7 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
     private float digitAlignment;
     private int minimumDisplayDigits;
 
-    //  Keep history information to reduce the number of times the component
-    //  needs to be repainted
-
+    //  Mantienen el historial para evitar repintar de mas
     private int lastDigits;
     private int lastHeight;
     private int lastLine;
@@ -49,10 +47,10 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
     private HashMap<String, FontMetrics> fonts;
 
     /**
-     *	Create a line number component for a text component. This minimum
-     *  display width will be based on 3 digits.
+     *	Constructor.
+     *	El ancho mostrado se basa en 3 digitos
      *
-     *  @param component  the related text component
+     *  @param component: Componente de texto relacionada
      */
     public TextLineNumber(JTextComponent component)
     {
@@ -60,11 +58,10 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
     }
 
     /**
-     *	Create a line number component for a text component.
+     *	Constructor.
      *
-     *  @param component  the related text component
-     *  @param minimumDisplayDigits  the number of digits used to calculate
-     *                               the minimum width of the component
+     *  @param component: Componente de texto relacionada
+     *  @param minimumDisplayDigits: Numero de digitos, usado para calcular la anchura minima
      */
     public TextLineNumber(JTextComponent component, int minimumDisplayDigits)
     {
@@ -83,9 +80,9 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
     }
 
     /**
-     *  Gets the update font property
+     *  Getter de la propiedad de actualizacion de fuente
      *
-     *  @return the update font property
+     *  @return updateFont: Propiedad de actualizacion de fuente
      */
     public boolean getUpdateFont()
     {
@@ -93,12 +90,9 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
     }
 
     /**
-     *  Set the update font property. Indicates whether this Font should be
-     *  updated automatically when the Font of the related text component
-     *  is changed.
+     *  Setter de la propiedad de actualizacion de fuente
      *
-     *  @param updateFont  when true update the Font and repaint the line
-     *                     numbers, otherwise just repaint the line numbers.
+     *  @param updateFont: Boolean para saber si actualizar la fuente
      */
     public void setUpdateFont(boolean updateFont)
     {
@@ -106,9 +100,9 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
     }
 
     /**
-     *  Gets the border gap
+     *  Getter del margen
      *
-     *  @return the border gap in pixels
+     *  @return borderGap: Valor del margen en pixeles
      */
     public int getBorderGap()
     {
@@ -116,10 +110,9 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
     }
 
     /**
-     *  The border gap is used in calculating the left and right insets of the
-     *  border. Default value is 5.
+     *  Setter del margen
      *
-     *  @param borderGap  the gap in pixels
+     *  @param borderGap: Tamaño del margen en pixeles
      */
     public void setBorderGap(int borderGap)
     {
@@ -131,9 +124,9 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
     }
 
     /**
-     *  Gets the current line rendering Color
+     *  Getter del color de resaltado de la linea actual
      *
-     *  @return the Color used to render the current line number
+     *  @return currentLineForeground: Color de resaltado de la linea actual
      */
     public Color getCurrentLineForeground()
     {
@@ -141,9 +134,9 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
     }
 
     /**
-     *  The Color used to render the current line digits. Default is Coolor.RED.
+     *  Setter del color de resaltado de la linea actual
      *
-     *  @param currentLineForeground  the Color used to render the current line
+     *  @param currentLineForeground: Color de resaltado de la linea actual
      */
     public void setCurrentLineForeground(Color currentLineForeground)
     {
@@ -151,9 +144,9 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
     }
 
     /**
-     *  Gets the digit alignment
+     *  Getter de la alineacion de los digitos
      *
-     *  @return the alignment of the painted digits
+     *  @return digitAlignment: Alineacion de los digitos
      */
     public float getDigitAlignment()
     {
@@ -161,14 +154,9 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
     }
 
     /**
-     *  Specify the horizontal alignment of the digits within the component.
-     *  Common values would be:
-     *  <ul>
-     *  <li>TextLineNumber.LEFT
-     *  <li>TextLineNumber.CENTER
-     *  <li>TextLineNumber.RIGHT (default)
-     *	</ul>
-     *  @param currentLineForeground  the Color used to render the current line
+     *  Setter de la alineacion de los digitos
+     *
+     *  @param digitAlignment: Alineacion de los digitos
      */
     public void setDigitAlignment(float digitAlignment)
     {
@@ -177,9 +165,9 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
     }
 
     /**
-     *  Gets the minimum display digits
+     *  Getter de los digitos de visualizacion minimos
      *
-     *  @return the minimum display digits
+     *  @return minimumDisplayDigits: Digitos de visualizacion minimos
      */
     public int getMinimumDisplayDigits()
     {
@@ -187,11 +175,9 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
     }
 
     /**
-     *  Specify the mimimum number of digits used to calculate the preferred
-     *  width of the component. Default is 3.
+     *  Setter de los digitos de visualizacion minimos
      *
-     *  @param minimumDisplayDigits  the number digits used in the preferred
-     *                               width calculation
+     *  @param minimumDisplayDigits: Digitos de visualizacion minimos
      */
     public void setMinimumDisplayDigits(int minimumDisplayDigits)
     {
@@ -200,7 +186,7 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
     }
 
     /**
-     *  Calculate the width needed to display the maximum line number
+     *  Funcion que calcula el ancho necesario para mostrar el maximo line number
      */
     private void setPreferredWidth()
     {
@@ -208,7 +194,7 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
         int lines = root.getElementCount();
         int digits = Math.max(String.valueOf(lines).length(), minimumDisplayDigits);
 
-        //  Update sizes when number of digits in the line number changes
+        //  Actualiza el tamaño cuando el numero de digitos del line number cambio
 
         if (lastDigits != digits)
         {
@@ -226,20 +212,20 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
     }
 
     /**
-     *  Draw the line numbers
+     *  Funcion que dibuja los line numbers
      */
     @Override
     public void paintComponent(Graphics g)
     {
         super.paintComponent(g);
 
-        //	Determine the width of the space available to draw the line number
+        //	Determina el ancho del espacio disponible para dibujar el line number
 
         FontMetrics fontMetrics = component.getFontMetrics( component.getFont() );
         Insets insets = getInsets();
         int availableWidth = getSize().width - insets.left - insets.right;
 
-        //  Determine the rows to draw within the clipped bounds.
+        //  Determina las filas a dibujar sin los limites recortados.
 
         Rectangle clip = g.getClipBounds();
         int rowStartOffset = component.viewToModel( new Point(0, clip.y) );
@@ -254,8 +240,8 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
                 else
                     g.setColor( getForeground() );
 
-                //  Get the line number as a string and then determine the
-                //  "X" and "Y" offsets for drawing the string.
+                //  Obtiene el line number como string y determina el desplazamiento en
+                //  X y Y para dibujar el string.
 
                 String lineNumber = getTextLineNumber(rowStartOffset);
                 int stringWidth = fontMetrics.stringWidth( lineNumber );
@@ -263,7 +249,7 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
                 int y = getOffsetY(rowStartOffset, fontMetrics);
                 g.drawString(lineNumber, x, y);
 
-                //  Move to the next row
+                // Avanza de fila
 
                 rowStartOffset = Utilities.getRowEnd(component, rowStartOffset) + 1;
             }
@@ -271,9 +257,9 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
         }
     }
 
-    /*
-     *  We need to know if the caret is currently positioned on the line we
-     *  are about to paint so the line number can be highlighted.
+    /**
+     *  Funcion para saber si el signo de intercalacion se ubica en la linea que
+     *  se va a pintar, para poder resaltar el line number
      */
     private boolean isCurrentLine(int rowStartOffset)
     {
@@ -286,9 +272,9 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
             return false;
     }
 
-    /*
-     *	Get the line number to be drawn. The empty string will be returned
-     *  when a line of text has wrapped.
+    /**
+     * Getter del line number que se va a dibujar
+     * Retorna un string vacio si se hizo un ajuste en las lineas de texto
      */
     protected String getTextLineNumber(int rowStartOffset)
     {
@@ -302,35 +288,36 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
             return "";
     }
 
-    /*
-     *  Determine the X offset to properly align the line number when drawn
+    /**
+     * Getter del desplazamiento en X para ajustar el line number cuando se dibuja
      */
     private int getOffsetX(int availableWidth, int stringWidth)
     {
         return (int)((availableWidth - stringWidth) * digitAlignment);
     }
 
-    /*
-     *  Determine the Y offset for the current row
+    /**
+     *  Getter del desplazamiento en Y para la fila actual
      */
     private int getOffsetY(int rowStartOffset, FontMetrics fontMetrics)
             throws BadLocationException
     {
-        //  Get the bounding rectangle of the row
+        // Obtiene el rectangulo que delimita la fila
 
         Rectangle r = component.modelToView( rowStartOffset );
         int lineHeight = fontMetrics.getHeight();
         int y = r.y + r.height;
         int descent = 0;
 
-        //  The text needs to be positioned above the bottom of the bounding
-        //  rectangle based on the descent of the font(s) contained on the row.
+        // El texto se coloca encima de la parte inferior del
+        // rectángulo delimitador en función del descenso de la (s) fuente (s)
+        // contenidas en la fila.
 
-        if (r.height == lineHeight)  // default font is being used
+        if (r.height == lineHeight)  // se usa la fuente por default
         {
             descent = fontMetrics.getDescent();
         }
-        else  // We need to check all the attributes for font changes
+        else  // Se revisan todos los atributos para determinar cambios de fuente
         {
             if (fonts == null)
                 fonts = new HashMap<String, FontMetrics>();
@@ -363,19 +350,19 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
         return y - descent;
     }
 
-    //
-//  Implement CaretListener interface
-//
+    /**
+     * Funcion que implementa la interfaz CaretListener
+    */
     @Override
     public void caretUpdate(CaretEvent e)
     {
-        //  Get the line the caret is positioned on
+        //  Obtiene la linea de ubicacion del signo de intercalacion
 
         int caretPosition = component.getCaretPosition();
         Element root = component.getDocument().getDefaultRootElement();
         int currentLine = root.getElementIndex( caretPosition );
 
-        //  Need to repaint so the correct line number can be highlighted
+        //  Repinta
 
         if (lastLine != currentLine)
         {
@@ -385,9 +372,9 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
         }
     }
 
-    //
-//  Implement DocumentListener interface
-//
+    /**
+     * Funciones que implementa la interfaz DocumentListener
+     */
     @Override
     public void changedUpdate(DocumentEvent e)
     {
@@ -406,14 +393,13 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
         documentChanged();
     }
 
-    /*
-     *  A document change may affect the number of displayed lines of text.
-     *  Therefore the lines numbers will also change.
+    /**
+     *  Funcion para cambiar los numeros de linea en caso de cambios en el documento
      */
     private void documentChanged()
     {
-        //  View of the component has not been updated at the time
-        //  the DocumentEvent is fired
+        //  Verifica que no hayan actualizacione en el documento en el momento
+        //  en que DocumentEvent es ejecutado
 
         SwingUtilities.invokeLater(new Runnable()
         {
@@ -438,9 +424,9 @@ public class TextLineNumber extends JPanel implements CaretListener, DocumentLis
         });
     }
 
-    //
-//  Implement PropertyChangeListener interface
-//
+    /**
+     * Funciones que implementa la interfaz PropertyChangeListener
+     */
     @Override
     public void propertyChange(PropertyChangeEvent evt)
     {
