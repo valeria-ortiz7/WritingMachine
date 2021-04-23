@@ -161,7 +161,10 @@ public class IDLE extends JFrame {
         if(editor.isNuevo()){
             JFileChooser fc = new JFileChooser();
             if(fc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION){
-                ruta = fc.getSelectedFile().getAbsolutePath()+".txt";
+                ruta = fc.getSelectedFile().getAbsolutePath();
+                if (!ruta.substring(fc.getSelectedFile().getAbsolutePath().length()-4,fc.getSelectedFile().getAbsolutePath().length()).equals(".txt")) {
+                    ruta = fc.getSelectedFile().getAbsolutePath() + ".txt";
+                }
             }
         }
         contenido = textEditor.getTexto();
