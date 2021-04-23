@@ -12,9 +12,7 @@ import java.io.IOException;
 
 public class Editor {
 
-    /**
-     * Archivo que se esta creando o modificando en el IDLE
-     */
+    // Archivo que se esta creando o modificando en el IDLE
     private Documento archivo;
 
     /**

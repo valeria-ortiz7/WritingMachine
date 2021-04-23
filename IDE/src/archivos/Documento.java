@@ -16,9 +16,7 @@ import java.io.PrintWriter;
 
 public class Documento {
 
-    /**
-     * Archivo en la computadora
-     */
+    // Archivo en la computadora
     private File txt;
 
     // Definicion de un string con el path del archivo
