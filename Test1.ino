@@ -73,7 +73,7 @@ void loop(){
       valorS= valorString.substring(valorString.indexOf(' '),valorString.indexOf('\n'));
       valorS= valorS.substring(1,valorS.length());
       Serial.println("Instruccion enviada:" +instruccion+ ", valor:" +valorS);
-      valor=valorS.toFloat() * 50;
+      valor=valorS.toFloat();
     
   //Serial.print(stepper1.currentPosition());   
   //Serial.print(stepper2.currentPosition()); 
