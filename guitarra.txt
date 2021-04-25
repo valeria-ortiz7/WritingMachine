@@ -1,5 +1,5 @@
 --Dibujar Guitarra
-PARA Main[
+PARA MAIN[
 Def xyz = 1;
 guitarra[xyz];
 ]FIN
@@ -28,21 +28,30 @@ ContinueUp 3;
 ContinueLeft 1;
 ContinueUp 1;
 ContinueLeft 5;
+Up;
 ContinueDown 3;
+Down;
 rectangulo[3,3];
+Up;
 ContinueLeft 1;
 ContinueDown 6;
+Down;
 While (Greater(6,a);) [
 IfElse (Equal(a,3);) 
 [Up;ContinueRight 1;Down;]
 [rectangulo[1,1]; Up; ContinueRight 1; Down;];
+Add[a];
 ];
+Put a = 1;
+Up;
 ContinueUp 24;
 ContinueLeft 3;
+Down;
 While (Smaller(a,4);) [
 IfElse (a=2) 
 [Up;ContinueRight 1; Down;]
 [rectangulo[1,1]; Up; ContinueRight 1; Down;];
+Add[a];
 ];
 
 ]FIN
@@ -53,7 +62,7 @@ ContinueDown altura;
 ContinueRight base;
 ContinueUp altura;
 ContinueLeft base; 
-];
+]FIN
 
 
 PARA rectangulo[altura,base,color]
@@ -63,4 +72,4 @@ ContinueDown altura;
 ContinueRight base;
 ContinueUp altura;
 ContinueLeft base; 
-];
+]FIN
