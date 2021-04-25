@@ -2,7 +2,7 @@
 PARA MAIN
 [
 Def xyz = Mult(3,3);;
-Mult(2,2,2);
+Sum(2,spsps,2);
 Speed xyz;
 Put xyz = Sum(2,1);;
 ContinueUp xyz;
@@ -19,6 +19,29 @@ UseColor 2+2-1;
 Down;
 Up;
 Begin;
+dibujo[10,10];
 
+]
+FIN
+
+PARA dibujo [altura,ancho]
+[
+Def cont = 1;
+Def alt = altura;
+Def anc = ancho;
+Def color = 1;
+While [Greater(6,cont);] [
+ContinueUp alt;
+ContinueRight anc;
+ContinueDown alt;
+ContinueLeft anc;
+Put color = color;
+Add[color];
+If (Equal(color,4);) [Put color = 1;];
+UseColor color;
+Add[alt 10];
+Add[anc 10];
+Add[cont];
+];
 ]
 FIN

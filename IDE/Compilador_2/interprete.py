@@ -47,10 +47,11 @@ flag = True
 def asignar_variable(lista, indicador):
    # Almacena las variables definidas como locales o globales segun el indicador
    if indicador == "global":
-      variables_globales[lista[1]] = lista[2]
+      print(lista[1],value(lista[2]))
+      variables_globales[lista[1]] = value(lista[2])
 
    elif indicador == "local":
-      variables[lista[1]] = lista[2]
+      variables[lista[1]] = value(lista[2])
 
 
 ###################### Procedimientos de ejecucion ################
@@ -86,8 +87,9 @@ def while_exe(while_):
 
    if recorrido != []:
       for i in recorrido:
-         for j in i:
-            auxiliar.append(j)
+         if i != None:
+            for j in i:
+               auxiliar.append(j)
 
       return auxiliar
 
@@ -206,10 +208,10 @@ def exe(listtoexe):
 
             else:
                if i[1] in variables_globales:
-                  variables_globales[i[1]] = variables_globales[i[1]] + value(i[2])
+                  variables_globales[i[1]] = value(variables_globales[i[1]]) + value(i[2])
 
                elif i[1] in variables:
-                  variables[i[1]] = variables[i[1]] + value(i[2])
+                  variables[i[1]] = value(variables[i[1]]) + value(i[2])
 
          elif i[0] == "DEF":
             # Revisa si la variable existe, si existe, da el error
