@@ -1,0 +1,12 @@
+--Dibujo #2
+
+PARA
+MAIN [
+Def sds = 1;
+Up;
+ContinueDown 6;
+Down;
+Repeat 4
+[ContinueUp sds; ContinueRight sds; ContinueDown sds; ContinueLeft sds; Add [sds 1];];
+]
+FIN

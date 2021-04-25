@@ -1,0 +1,54 @@
+--Letrero #2
+
+PARA
+MAIN [
+Def sds = 4;
+Up;
+ContinueRight 4;
+Down;
+
+--H
+ContinueDown sds;
+Up;
+ContinueUp 2;
+Down;
+ContinueRight 2;
+Up;
+ContinueUp 2;
+Down;
+ContinueDown sds;
+Up;
+ContinueUp sds;
+ContinueRight 2;
+
+--O
+Down;
+ContinueRight sds;
+ContinueDown sds;
+ContinueLeft sds;
+ContinueUp sds;
+Up;
+ContinueRight 6;
+
+--L
+Down;
+ContinueDown sds;
+ContinueRight sds;
+Up;
+ContinueUp sds;
+ContinueRight 2;
+
+--A
+Down;
+ContinueDown sds;
+Up;
+ContinueUp sds;
+Down;
+ContinueRight 2;
+ContinueDown sds;
+Up;
+ContinueUp 2;
+Down;
+ContinueLeft 2;
+]
+FIN
