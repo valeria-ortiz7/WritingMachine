@@ -225,7 +225,7 @@ public class IDLE extends JFrame {
             compilerLog.refresh("Iniciando el proceso de compilacion...");
             Thread.sleep(1000);
 
-            Process process = Runtime.getRuntime().exec("python3 " + dir + "/Compilador/ejecutar.py "  + editor.nombreTxt());
+            Process process = Runtime.getRuntime().exec("python3 " + dir + "/Compilador_2/interprete.py "  + editor.nombreTxt());
             process.waitFor();
             if(eventlog.getTexto().equals("")){
                 compilerLog.setTextColor(2);
@@ -234,6 +234,8 @@ public class IDLE extends JFrame {
                 compilerLog.setTextColor(1);
             }
             compilerLog.refresh(eventlog.getTexto() + "\n" + "Compilacion finalizada");
+            process = Runtime.getRuntime().exec("python3 " + dir + "/Compilador_2/ejecutar.py "  + editor.nombreTxt());
+
 
         }
         catch (Exception e){
