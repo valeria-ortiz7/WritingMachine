@@ -1,0 +1,23 @@
+--Hola
+PARA MAIN
+[
+Def xyz = Mult(3,3);;
+Speed xyz;
+Put xyz = Sum(dsds,1);;
+ContinueUp xyz;
+Add[xyz];
+ContinueLeft xyz;
+Add[xyz Div(xyz,xyz);];
+ContinueDown xyz;
+ContinueRight 4+3*2-3;
+Pos [xyz,2+2-1];
+Def abc = Random(10);;
+PosX abc;
+PosY Substr(abc,1);;
+UseColor 2+2-1;
+Down;
+Up;
+Begin;
+
+]
+FIN

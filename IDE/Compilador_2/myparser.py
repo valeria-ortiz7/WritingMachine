@@ -104,21 +104,17 @@ def p_sentencia_expr_error(p):
 # Definición de asignación
 # Output: ['Def', ID, valor]
 def p_asignacion_global(p):
-    ''' sentencia : DEF ID IGUAL valor PYC
+    ''' sentencia : DEF ID IGUAL oper PYC
                  | DEF ID IGUAL TRUE PYC
                  | DEF ID IGUAL FALSE PYC
    '''
     # Si se intenta usar una palabra reservada como ID
     if p[2] in palabras_reservadas.values():
-        lista_errores.append(
-            "ERROR: La variable {0} no se pudo definir en la línea {1} ya que no puede tener el mismo nombre que una palabra reservada".format(
-                p[2], p.lineno(2)))
+        lista_errores.append("ERROR: La variable {0} no se pudo definir en la línea {1} ya que no puede tener el mismo nombre que una palabra reservada".format([2], p.lineno(2)))
 
     # Revisa si no inicia con una letra minúscula
     elif not p[2][0].islower() or isinstance(p[2][0], int):
-        lista_errores.append(
-            "ERROR: La variable {0} no se pudo definir en la línea {1} ya que debe empezar con una letra minúscula".format(
-                p[2], p.lineno(2)))
+        lista_errores.append("ERROR: La variable {0} no se pudo definir en la línea {1} ya que debe empezar con una letra minúscula".format(p[2], p.lineno(2)))
 
     # Verifica que la asignación de la variable cumpla con el tamaño
     elif len(p[2]) >= 3 and len(p[2]) <= 10:
@@ -130,9 +126,7 @@ def p_asignacion_global(p):
 
     # Si no cumple con el tamaño
     else:
-        lista_errores.append(
-            "ERROR: La variable {0} no se pudo definir en la línea {1} ya que debe tener más de 3 posiciones y menos de 10 posiciones".format(
-                p[2], p.lineno(2)))
+        lista_errores.append("ERROR: La variable {0} no se pudo definir en la línea {1} ya que debe tener más de 3 posiciones y menos de 10 posiciones".format(p[2], p.lineno(2)))
 
 
 # Error de la función DEF
@@ -163,8 +157,7 @@ def p_sentencia_cambio_error(p):
 # Output: ['Add', ID] o ['Add', ID, INT/ID]
 def p_add(p):
     ''' add : ADD CORCHETEIZQ ID CORCHETEDER PYC
-                 | ADD CORCHETEIZQ ID ID CORCHETEDER PYC
-                 | ADD CORCHETEIZQ ID INT CORCHETEDER PYC
+                 | ADD CORCHETEIZQ ID oper CORCHETEDER PYC
    '''
     if len(p) == 6:
         p[0] = [p[1], p[3], 1]
@@ -199,15 +192,11 @@ def p_valor(p):
 # Definición de Continue
 # Output: ['ContinueX', valor/expresion]
 def p_continue(p):
-    ''' continue : CONTINUEUP valor PYC
-                        | CONTINUEUP expresion PYC
-                        | CONTINUEDOWN valor PYC
-                        | CONTINUEDOWN expresion PYC
-                        | CONTINUERIGHT valor PYC
-                        | CONTINUERIGHT expresion PYC
-                        | CONTINUELEFT valor PYC
-                        | CONTINUELEFT expresion PYC
-   '''
+    ''' continue : CONTINUEUP oper PYC
+                        | CONTINUEDOWN oper PYC
+                        | CONTINUERIGHT oper PYC
+                        | CONTINUELEFT oper PYC
+    '''
     p[0] = [p[1], p[2]]
 
 
@@ -229,10 +218,8 @@ def p_continue_error(p):
 # Output: [Pos, [X,Y]]
 def p_pos(p):
     ''' pos : POS CORCHETEIZQ parametros CORCHETEDER PYC
-               | POSX expresion PYC
-               | POSX valor PYC
-               | POSY expresion PYC
-               | POSY valor PYC
+               | POSX oper PYC
+               | POSY oper PYC
    '''
     # Si es Pos[X, Y]
     if len(p) == 6:
@@ -271,18 +258,14 @@ def p_write_error(p):
 # Definicion de UseColor
 # Output: ['UseColor', valor]
 def p_usecolor(p):
-    '''usecolor : USECOLOR valor PYC
-                      | USECOLOR expresion PYC
+    '''usecolor : USECOLOR oper PYC
    '''
     if isinstance(p[2], int):
         if 1 <= p[2] <= 3:
             p[0] = [p[1], p[2]]
 
         else:
-            lista_errores.append(
-                "ERROR: Los valores aceptados para UseColor son 1, 2 o 3. Se utilizó {0} en la linea {1}".format(p[2],
-                                                                                                                 p.lineno(
-                                                                                                                     1)))
+            lista_errores.append("ERROR: Los valores aceptados para UseColor son 1, 2 o 3. Se utilizó {0} en la linea {1}".format(p[2],p.lineno(1)))
             p[0] = None
 
     else:
@@ -312,9 +295,7 @@ def p_begin_error(p):
                   | BEGIN error PYC
    '''
     if len(p) == 4:
-        lista_errores.append(
-            "ERROR: Error de sintaxis en la función {0} en la línea {1}. La función {0} no recibe parámetros".format(
-                p[1], p.lineno(2)))
+        lista_errores.append("ERROR: Error de sintaxis en la función {0} en la línea {1}. La función {0} no recibe parámetros".format(p[1], p.lineno(2)))
 
     else:
         lista_errores.append("ERROR: Error de sintaxis en la función {0} en la línea {1}".format(p[1], p.lineno(1)))
@@ -322,8 +303,7 @@ def p_begin_error(p):
 
 # Definicion de Speed
 def p_speed(p):
-    '''speed : SPEED expresion PYC
-                  | SPEED valor PYC
+    '''speed : SPEED oper PYC
    '''
     p[0] = [p[1], p[2]]
 
@@ -425,9 +405,12 @@ def p_condicion(p):
 # Operador de funciones
 def p_operadorcondicion(p):
     ''' oper : valor
-                 | expresion
+             | expresion
+             | operacion
    '''
     if isinstance(p[1], int):
+        p[0] = p[1]
+    elif isinstance(p[1], list):
         p[0] = p[1]
     else:
         p[0] = str(p[1])
@@ -502,12 +485,20 @@ def p_operadorlogico_error(p):
 
 # Definición de Subract N2 a N1
 def p_substr(p):
-    """ operacion : SUBSTR PARENTESISIZQ parametros PARENTESISDER PYC
+   """ operacion : SUBSTR PARENTESISIZQ parametros PARENTESISDER PYC
    """
-    resultado = p[3][0] * 2
-    for i in p[3]:
-        resultado = resultado - i
-    p[0] = resultado
+   resultado = p[3][0] * 2
+   op_entera = True
+   for i in p[3]:
+      if isinstance(i,int) and isinstance(resultado,int):
+         resultado = resultado - i
+      else:
+         op_entera = False
+
+   if op_entera == True:
+      p[0] = resultado
+   else:
+      p[0] = ["Operacion", p[1], p[3]]
 
 
 # Definición de Random(n)
@@ -525,41 +516,60 @@ def p_random(p):
 
 # Definición de power
 def p_power(p):
-    """ operacion : POWER PARENTESISIZQ expresion COMA expresion PARENTESISDER PYC
+   """ operacion : POWER PARENTESISIZQ oper COMA oper PARENTESISDER PYC
    """
-    p[0] = pow(p[3], p[5])
+   if isinstance(p[3],int) and isinstance(p[5],int):
+      p[0] = pow(p[3], p[5])
+   else:
+      p[0] =["Operacion", p[1], p[3], p[5]]
 
 
 # Definición de Div
 def p_div(p):
-    """ operacion : DIV PARENTESISIZQ expresion COMA expresion PARENTESISDER PYC
+   """ operacion : DIV PARENTESISIZQ oper COMA oper PARENTESISDER PYC
    """
-    p[0] = p[3] / p[5]
+   if isinstance(p[3],int) and isinstance(p[5],int):
+      p[0] = p[3] / p[5]
+   else:
+      p[0] = ["Operacion",p[1],p[3],p[5]]
 
 
 # Definición de Sum
 def p_sum(p):
     """ operacion : SUM PARENTESISIZQ parametros PARENTESISDER PYC
-   """
+    """
 
     # Como se recibe una lista de parámetros, se suman los parámetros recibidos
     resultado = 0
+    op_entera = True
     for i in p[3]:
-        resultado = resultado + i
+        if isinstance(i, int):
+            resultado = resultado + i
+        else:
+            op_entera = False
 
-    p[0] = resultado
+    if op_entera == True:
+        p[0] = resultado
+    else:
+        p[0] = ["Operacion", p[1], p[3]]
 
 
 # Definición de Mult
 def p_mult(p):
-    """ operacion : MULT PARENTESISIZQ parametros PARENTESISDER PYC
+   """ operacion : MULT PARENTESISIZQ parametros PARENTESISDER PYC
    """
-    # Como se recibe una lista de parámetros, se multiplican los parámetros recibidos
-    resultado = 1
-    for i in p[3]:
-        resultado = resultado * i
-
-    p[0] = resultado
+   # Como se recibe una lista de parámetros, se multiplican los parámetros recibidos
+   resultado = 1
+   op_entera = True
+   for i in p[3]:
+      if isinstance(i,int):
+         resultado = resultado * i
+      else:
+          op_entera = False
+   if op_entera == True:
+      p[0] = resultado
+   else:
+      p[0] = ["Operacion",p[1],p[3]]
 
 
 # Error de las operaciones
@@ -581,6 +591,7 @@ def p_operacion_error(p):
 def p_parametros(p):
     '''parametros : expresion
                             | valor
+                            | oper
                             | parametros COMA oper
    '''
 
@@ -605,7 +616,7 @@ def p_run(p):
 
 # Definición de Repeat
 def p_repeat(p):
-    ''' funcionreservada : REPEAT valor CORCHETEIZQ ordenes CORCHETEDER PYC
+    ''' funcionreservada : REPEAT oper CORCHETEIZQ ordenes CORCHETEDER PYC
    '''
     # Devuelve las ordenes a ejecutar y numero de veces que debe hacerlo
     p[0] = [p[1], p[4], p[2]]
@@ -730,9 +741,7 @@ def p_main(p):
     global main
 
     if main != 0:
-        lista_errores.append(
-            "ERROR: No puede haber más de una definición de Main, se encontró otra definición en la línea {0}".format(
-                p.lineno(2)))
+        lista_errores.append("ERROR: No puede haber más de una definición de Main, se encontró otra definición en la línea {0}".format(p.lineno(2)))
 
     else:
         main = main + 1
@@ -749,9 +758,7 @@ def p_main_error(p):
         lista_errores.append("ERROR: Error en la definición de Main en la línea {0}.".format(p.lineno(3)))
 
     else:
-        lista_errores.append(
-            "ERROR: Error en la definición de Main en la línea {0}. Main no puede incluir parámetros".format(
-                p.lineno(3)))
+        lista_errores.append("ERROR: Error en la definición de Main en la línea {0}. Main no puede incluir parámetros".format(p.lineno(3)))
 
 
 # Definicion de llamadas de funciones

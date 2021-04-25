@@ -8,9 +8,9 @@ from compilador import lista_errores
 import os
 
 # Define dónde se va a guardar el TXT de errores
-directorio = os.getcwd() + "/Compilador_2/error.txt"
+directorio = os.getcwd() + "/error.txt"
 
-print(directorio)
+
 
 # Código que se va a ejecutar
 codigo_main = []
@@ -206,10 +206,10 @@ def exe(listtoexe):
 
             else:
                if i[1] in variables_globales:
-                  variables_globales[i[1]] = variables_globales[i[1]] + i[2]
+                  variables_globales[i[1]] = variables_globales[i[1]] + value(i[2])
 
                elif i[1] in variables:
-                  variables[i[1]] = variables[i[1]] + i[2]
+                  variables[i[1]] = variables[i[1]] + value(i[2])
 
          elif i[0] == "DEF":
             # Revisa si la variable existe, si existe, da el error
@@ -229,10 +229,10 @@ def exe(listtoexe):
             # Si no hay errores, modifica el valor
             else:
                if i[1] in variables_globales:
-                  variables_globales[i[1]] = i[2]
+                  variables_globales[i[1]] = value(i[2])
 
                elif i[1] in variables:
-                  variables[i[1]] = i[2]
+                  variables[i[1]] = value(i[2])
 
          # Ejecuta un if
          elif i[0] == "IF":
@@ -410,7 +410,25 @@ def revisar_condicion(condicion):
 
 
 def value(x):
-   # Retorna el valor de una variable, en caso de existir
+   # Retorna el valor de una variable, en caso de existir o de una operacion
+   valor = 1
+   if isinstance(x,list):
+      if x[1] == "Mult":
+         for i in x[2]:
+            valor = valor * value(i)
+      elif x[1] == "Div":
+         valor = value(x[2]) / value(x[3])
+      elif x[1] == "Power":
+         valor = pow(value(x[2]),value(x[3]))
+      elif x[1] == "Substr":
+         valor = value(x[2][0]) * 2
+         for i in x[2]:
+            valor = valor - value(i)
+      elif x[1] == "Sum":
+         valor = 0
+         for i in x[2]:
+            valor = valor + value(i)
+      return valor
 
    if x in variables:
       return variables[x]
@@ -451,6 +469,7 @@ def analizador_semantico(entrada, indicador):
                     'Speed': False,
                     'MayorMenor': False,
                     'Iguales': True,
+                    'Operacion': False
                     }
 
    # Flag interna del metodo
@@ -458,15 +477,27 @@ def analizador_semantico(entrada, indicador):
 
    # Da la función actual (ContinueUp, Add, etc)
    funcion = entrada[0]
-
    # Por cada valor en la lista
    for parametro in entrada:
       # No toma en cuenta el primer valor
       if parametro != funcion:
          # Si es global
          if indicador == "global":
+            # Si es numero pasa
             if isinstance(parametro, int):
                pass
+            # Si es una descripcion de operacion pasa
+            elif parametro == "Sum" or parametro == "Substr" or parametro == "Mult" or parametro == "Div" or parametro == "Power":
+               pass
+            # Si es una lista la maneja segun sus entradas
+            elif isinstance(parametro,list):
+               if isinstance(parametro[2],list):
+                  for i in parametro[2]:
+                     if analizador_semantico([parametro[0],i],"global") == False:
+                        flag = False
+               else:
+                  if analizador_semantico(parametro,"global") == False:
+                     flag = False
 
             # Si el parametro no es una variable pero si un bool
             elif parametro == "True" or parametro == "False":
@@ -493,6 +524,19 @@ def analizador_semantico(entrada, indicador):
             # Si es número, pasa
             if isinstance(parametro, int):
                pass
+
+            # Si es una descripcion de operacion pasa
+            elif parametro == "Sum" or parametro == "Substr" or parametro == "Mult" or parametro == "Div" or parametro == "Power":
+               pass
+            # Si es una lista la maneja segun sus entradas
+            elif isinstance(parametro,list):
+               if isinstance(parametro[2],list):
+                  for i in parametro[2]:
+                     if analizador_semantico([parametro[0],i],"local") == False:
+                        flag = False
+               else:
+                  if analizador_semantico(parametro,"local") == False:
+                     flag = False
             # Si el parametro no es una variable pero si un bool
             elif parametro == "True" or parametro == "False":
                # Si la funcionn no acepta bools da error
