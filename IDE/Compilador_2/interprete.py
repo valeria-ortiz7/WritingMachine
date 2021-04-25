@@ -10,8 +10,6 @@ import os
 # Define dónde se va a guardar el TXT de errores
 directorio = os.getcwd() + "/Compilador_2/error.txt"
 
-print(directorio)
-
 # Código que se va a ejecutar
 codigo_main = []
 
@@ -283,9 +281,11 @@ def exe(listtoexe):
                tipo_variable = "global"
 
          else:
+            # Verifica si está en una función reservada
             if i[0] in funcion_reservada:
                funcion = []
 
+               # Si es la función Pos X, Y
                if i[0] == "Pos" :
                   if analizador_semantico([i[0],i[1][0],i[1][1]],tipo_variable) == False:
                      flag = False
@@ -321,42 +321,52 @@ def revisar_condicion(condicion):
    # Segun el tipo de condicion revisa los valores de entrada si se cumple la condicion retorna True si no se cumple False
    global tipo_variable, flag
 
+   # Smaller
    if condicion[0] == "Smaller":
       # Analiza semánticamente la condición
       if analizador_semantico(["MayorMenor", condicion[1], condicion[2]], tipo_variable) == False:
          flag = False
 
+      # Verifica semánticamente la condición
       if type(value(condicion[1])) == type(value(condicion[2])):
          if value(condicion[1]) < value(condicion[2]):
             return True
-
+      
+      # Si no se cumple
       else:
          return False
 
+   # Greater
    elif condicion[0] == "Greater":
       # Analiza semánticamente la condición
       if analizador_semantico(["MayorMenor",condicion[1],condicion[2]], tipo_variable) == False:
          flag = False
-
+      
+      # Verifica semánticamente la condición
       if type(value(condicion[1])) == type(value(condicion[2])):
          if value(condicion[1]) > value(condicion[2]):
             return True
-
+      
+      # Si no se cumple
       else:
          return False
 
+   # Equal
    elif condicion[0] == "Equal":
       # Analiza semánticamente la condición
       if analizador_semantico(["Iguales",condicion[1],condicion[2] ],tipo_variable) == False:
          flag = False
 
+      # Verifica semánticamente la condición
       if type(value(condicion[1])) == type(value(condicion[2])):
          if value(condicion[1]) == value(condicion[2]):
             return True
 
+      # Si no se cumple
       else:
          return False
 
+   # Or
    elif condicion[0] == "Or":
       # Revisa las dos condiciones del Or y si alguna se cumple retorna True
       if revisar_condicion(condicion[1]) == True or revisar_condicion(condicion[2]) == True:
