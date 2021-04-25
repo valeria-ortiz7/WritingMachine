@@ -309,7 +309,10 @@ def exe(listtoexe):
 
       # Cuando son metodos sencillos como Begin/Up/Down los almacena directamente
       else:
-         recorrido.append(i)
+         if isinstance(i,int):
+            pass
+         else:
+            recorrido.append(i)
 
    # Retorna la lista con las instrucciones ejecutadas
    return recorrido

@@ -2,8 +2,9 @@
 PARA MAIN
 [
 Def xyz = Mult(3,3);;
+Mult(2,2,2);
 Speed xyz;
-Put xyz = Sum(dsds,1);;
+Put xyz = Sum(2,1);;
 ContinueUp xyz;
 Add[xyz];
 ContinueLeft xyz;
