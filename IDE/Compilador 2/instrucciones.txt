@@ -1,0 +1,60 @@
+ContinueUp 5
+ContinueDown 2
+PosX 4
+Pos 5 2
+ContinueLeft 40
+ContinueLeft 40
+ContinueLeft 40
+ContinueLeft 40
+ContinueLeft 40
+ContinueLeft 40
+ContinueUp 5
+Pos 5 6
+Pos 5 6
+ContinueUp 5
+ContinueUp 5
+ContinueUp 5
+PosX 4
+ContinueUp 3
+ContinueLeft 4
+Speed 12
+ContinueUp 43
+ContinueLeft 3
+ContinueUp 43
+ContinueUp 4
+ContinueUp 5
+ContinueUp 7
+ContinueUp 5
+ContinueDown 56
+ContinueLeft 43
+UseColor 3
+Pos 5 3
+ContinueLeft 13
+ContinueUp 43
+ContinueLeft 3
+ContinueUp 43
+ContinueUp 4
+ContinueUp 5
+ContinueUp 7
+ContinueUp 5
+ContinueDown 56
+ContinueLeft 43
+UseColor 3
+Pos 5 3
+ContinueUp 43
+ContinueLeft 3
+ContinueUp 43
+ContinueUp 4
+ContinueUp 5
+ContinueUp 7
+ContinueUp 5
+ContinueDown 56
+ContinueLeft 43
+UseColor 3
+Pos 5 3
+ContinueUp 16
+Pos 99 99
+Pos 55 55
+Pos 2 6
+Pos 2 6
+Pos 2 6

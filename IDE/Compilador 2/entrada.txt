@@ -1,4 +1,4 @@
---Hello
+--- Errores
 Def iweqA@ = 7;
 Def var_prueba = 999;
 ContinueUp 5;
@@ -6,6 +6,7 @@ Def variable1 = True;
 ContinueUp sdas23;
 Put i_aa = 9;
 Put s = 7;
+Mult(3,x);
 Down;
 
 --- Errores
@@ -17,26 +18,37 @@ Down;
 
 PARA 
 MAIN 
-[
-Def varbool = True;
-
+[ContinueUp 5;
 Def sds = 2;
-
+Def var1b = True;
 ContinueDown sds;
 PosX 4;
-IfElse (Greater(2,1);) [ContinueUp 3;][Speed 100;];
 Pos [6,sds];
+
 ContinueLeft 40;
-While (And(sds<5,2=2);) [ContinueUp 5;Add[sds];] ;
-If (And(2<3,2=7);) [ContinueUp 32; ContinueDown 4;];
-Add [sds];
-IfElse (2>sds) [ContinueUp 32; ContinueDown 4;][Speed sds;];
+ContinueLeft 40;
+ContinueLeft 40;
+ContinueLeft 40;
+ContinueLeft 40;
+ContinueLeft 40;
+Repeat 4 [
+    ContinueUp 5;
+    While (Or(3>6,sds<4);) [
+IfElse (Equal(2,13);)
+[ContinueLeft 2;]
+[Pos[2,6]; Add[sds];];
+];];
 PosX 4;
 funcion1[4,12];
+IfElse (Equal(2,13);)
+[ContinueLeft 2;]
+[Pos[99,99]; Pos[55,55]; While (Or(3>6,sds<7);) [
+IfElse (Equal(2,13);)
+[ContinueLeft 2;]
+[Pos[2,6]; Add[sds];];
+];];
 Def var23 = True;]
 FIN
-
-Repeat 4 [ContinueUp 5;];
 
 PARA f1 [x,y]
 [ 
@@ -63,6 +75,7 @@ PARA f3 [a,b]
 [ 
 Def ers = 5;
 ContinueUp a;
+f4 [7,8];
 ContinueUp a;
 ]
 FIN
@@ -71,7 +84,6 @@ PARA f4 [a,b]
 [ 
 Def epss = 0;
 ContinueUp a;
-PosX epss;
 ]
 FIN
 
@@ -85,8 +97,6 @@ ContinueLeft x;
 Speed y;
 While (Or(3>6,Smaller(y,16););) [IfElse (Equal(y,13);) [ContinueLeft y;][adams222[3,2,3]; Pos[x,i3cs];];Add[y];];
 Def pdsd = 7;
-ContinueDown y;
-f4[2,2];
 ContinueUp y; 
 ] 
 FIN

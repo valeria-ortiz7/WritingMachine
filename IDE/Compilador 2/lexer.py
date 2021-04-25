@@ -1,12 +1,9 @@
 import ply.lex as lex
 from ply.lex import TOKEN
-import sys
 
 """
 Writing Machine
-
 lexer.py: Imprime la línea que se recorre y los tokens en forma de pares ordenados 
-
 """
 
 # Lista de palabras reservadas, se hace aparte de los tokens para no generar una expresión regular para cada una

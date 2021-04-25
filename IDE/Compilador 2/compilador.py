@@ -7,11 +7,6 @@ from myparser import main
 from myparser import lista_errores
 from myparser import resultado as AST
 
-# Generación de números aleatorios
-import random
-
-
-
 # Flag para verificar si hay errores
 flag = True
 
@@ -55,5 +50,3 @@ if len(lista_errores) != 0:
 
 if AST != None:
    AST = list(filter(None, AST))
-
-
