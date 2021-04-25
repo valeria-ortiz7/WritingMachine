@@ -8,7 +8,9 @@ from compilador import lista_errores
 import os
 
 # Define dónde se va a guardar el TXT de errores
-directorio = os.getcwd() + "/error.txt"
+directorio = os.getcwd() + "/Compilador_2/error.txt"
+
+print(directorio)
 
 # Código que se va a ejecutar
 codigo_main = []

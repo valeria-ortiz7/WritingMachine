@@ -79,7 +79,7 @@ public class IDLE extends JFrame {
         contentPane.add(compilerLog, BorderLayout.SOUTH);
 
         this.setTitle("Writting Machine - Documento sin guardar");
-        eventlog = new Documento(dir + "/Compilador/error.txt");
+        eventlog = new Documento(dir + "/Compilador_2/error.txt");
 
     }
 
@@ -191,7 +191,7 @@ public class IDLE extends JFrame {
             compilerLog.refresh("Iniciando el proceso de compilacion...");
             Thread.sleep(1000);
 
-            Process process = Runtime.getRuntime().exec("python3 " + dir + "/Compilador/compilador.py "  + editor.nombreTxt());
+            Process process = Runtime.getRuntime().exec("python3 " + dir + "/Compilador_2/interprete.py "  + editor.nombreTxt());
             process.waitFor();
 
             /* Funcion para leer en el momento de ejecucion

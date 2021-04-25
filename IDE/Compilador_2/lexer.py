@@ -14,7 +14,7 @@ palabras_reservadas = {
     'Add'                     : 'ADD',
     'ContinueUp'       : 'CONTINUEUP',
     'ContinueDown'  : 'CONTINUEDOWN',
-    'ContinueRight:'  : 'CONTINUERIGHT',
+    'ContinueRight'  : 'CONTINUERIGHT',
     'ContinueLeft'      : 'CONTINUELEFT',
     'Pos'                       : 'POS',
     'PosX'                     : 'POSX',

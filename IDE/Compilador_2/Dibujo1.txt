@@ -1,0 +1,13 @@
+--Dibujo #1
+
+PARA
+MAIN [
+Def sds = 2;
+Up;
+ContinueDown 6;
+Down;
+ContinueUp 6;
+ContinueRight sds;
+ContinueDown sds;
+ContinueLeft sds;]
+FIN
