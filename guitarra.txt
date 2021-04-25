@@ -1,0 +1,66 @@
+--Dibujar Guitarra
+PARA Main[
+Def xyz = 1;
+guitarra[xyz];
+]FIN
+
+PARA guitarra[a] 
+[
+rectangulo[6,5];
+ContinueDown 6;
+ContinueRight 1;
+rectangulo[10,3];
+ContinueDown 10;
+ContinueLeft 2;
+ContinueDown 1;
+ContinueLeft 1;
+ContinueDown 3;
+ContinueRight 1;
+ContinueDown 2;
+ContinueLeft 1;
+ContinueDown 6;
+ContinueRight 9;
+ContinueUp 6;
+ContinueLeft 1;
+ContinueUp 2;
+ContinueRight 1;
+ContinueUp 3;
+ContinueLeft 1;
+ContinueUp 1;
+ContinueLeft 5;
+ContinueDown 3;
+rectangulo[3,3];
+ContinueLeft 1;
+ContinueDown 6;
+While (Greater(6,a);) [
+IfElse (Equal(a,3);) 
+[Up;ContinueRight 1;Down;]
+[rectangulo[1,1]; Up; ContinueRight 1; Down;];
+];
+ContinueUp 24;
+ContinueLeft 3;
+While (Smaller(a,4);) [
+IfElse (a=2) 
+[Up;ContinueRight 1; Down;]
+[rectangulo[1,1]; Up; ContinueRight 1; Down;];
+];
+
+]FIN
+
+PARA rectangulo[altura,base]
+[
+ContinueDown altura;
+ContinueRight base;
+ContinueUp altura;
+ContinueLeft base; 
+];
+
+
+PARA rectangulo[altura,base,color]
+[
+UseColor color;
+ContinueDown altura;
+ContinueRight base;
+ContinueUp altura;
+ContinueLeft base; 
+];
